@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,6 +7,14 @@ import { QrCode, Settings, Eye } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
+
+  // Redirect customers directly to the menu page
+  useEffect(() => {
+    // Only redirect if the user is not looking for the admin interface
+    if (!window.location.search.includes('admin')) {
+      navigate("/menu");
+    }
+  }, [navigate]);
 
   return (
     <div className="min-h-screen py-12 px-4">
