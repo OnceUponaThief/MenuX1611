@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,6 +48,7 @@ interface RestaurantSettings {
 }
 
 const AdminDashboard = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -143,13 +145,28 @@ const AdminDashboard = () => {
 
   const fetchRestaurantSettings = async () => {
     try {
-      const { data, error } = await supabase
+      // First, try to get existing settings
+      let { data, error } = await supabase
         .from("restaurant_settings")
         .select("*")
         .limit(1);
 
-      if (error) throw error;
-      
+      // If table doesn't exist, show a helpful message
+      if (error && error.message.includes("relation") && error.message.includes("does not exist")) {
+        toast.error("Restaurant settings table not found. Please run the database migration.");
+        // Initialize with default values
+        setSettingsFormData({
+          name: "Restaurant Name",
+          logo_url: "",
+          currency_code: "INR",
+          language_code: "en",
+          timezone: "Asia/Kolkata",
+        });
+        return;
+      } else if (error) {
+        throw error;
+      }
+
       if (data && data.length > 0) {
         setRestaurantSettings(data[0]);
         setSettingsFormData({
@@ -159,11 +176,25 @@ const AdminDashboard = () => {
           language_code: data[0].language_code || "en",
           timezone: data[0].timezone || "Asia/Kolkata",
         });
+      } else {
+        // Initialize with default values if none exist
+        setSettingsFormData({
+          name: "Restaurant Name",
+          logo_url: "",
+          currency_code: "INR",
+          language_code: "en",
+          timezone: "Asia/Kolkata",
+        });
       }
     } catch (error) {
       console.error("Error fetching restaurant settings:", error);
       toast.error("Failed to load restaurant settings");
     }
+  };
+
+  const createRestaurantSettingsTable = async () => {
+    // Table creation should be handled through Supabase migrations
+    toast.error("Restaurant settings table not found. Please ensure the database migration has been run.");
   };
 
   const handleLogout = async () => {
@@ -960,14 +991,14 @@ const AdminDashboard = () => {
       <Dialog open={settingsDialogOpen} onOpenChange={setSettingsDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{t("restaurant_settings")}</DialogTitle>
+            <DialogTitle>Restaurant Settings</DialogTitle>
             <DialogDescription>
-              {t("manage_restaurant")}
+              Update your restaurant name and logo
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSettingsSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="restaurant-name">{t("restaurant_name")} *</Label>
+              <Label htmlFor="restaurant-name">Restaurant Name *</Label>
               <Input
                 id="restaurant-name"
                 value={settingsFormData.name}
@@ -1056,7 +1087,7 @@ const AdminDashboard = () => {
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t("save")}
+              Save Settings
             </Button>
           </form>
         </DialogContent>
