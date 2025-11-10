@@ -24,23 +24,29 @@ interface Offer {
   updated_at: string | null;
 }
 
+interface RestaurantSettings {
+  id: string;
+  name: string;
+  logo_url: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
 // Define category groups for better organization
 const CATEGORY_GROUPS = {
   drinks: ["drinks", "cocktails", "beer", "wine", "whiskey", "vodka", "gin", "rum", "brandy"],
   food: ["food", "appetizers", "soup", "main course", "rice", "noodles", "dal", "bread", "desserts"],
 };
 
-// Define the order of tabs
-const TAB_ORDER = ["drinks", "food"];
-
 const Menu = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [offers, setOffers] = useState<Offer[]>([]);
+  const [restaurantSettings, setRestaurantSettings] = useState<RestaurantSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<string[]>([]);
 
   useEffect(() => {
-    Promise.all([fetchMenuItems(), fetchOffers()]);
+    Promise.all([fetchMenuItems(), fetchOffers(), fetchRestaurantSettings()]);
   }, []);
 
   const fetchMenuItems = async () => {
@@ -78,6 +84,23 @@ const Menu = () => {
       }
     } catch (error) {
       console.error("Error fetching offers:", error);
+    }
+  };
+
+  const fetchRestaurantSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("restaurant_settings")
+        .select("*")
+        .limit(1);
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        setRestaurantSettings(data[0]);
+      }
+    } catch (error) {
+      console.error("Error fetching restaurant settings:", error);
     } finally {
       setLoading(false);
     }
@@ -151,15 +174,29 @@ const Menu = () => {
   return (
     <div className="min-h-screen py-12 px-4">
       <div className="max-w-6xl mx-auto">
+        {/* Restaurant Header */}
         <div className="mb-8 animate-fade-in">
-          <img 
-            src="/LIVE_Banner.svg" 
-            alt="LIVE Bar & Restaurant Banner"
-            className="w-full h-auto rounded-lg shadow-lg"
-          />
+          {restaurantSettings?.logo_url ? (
+            <div className="flex flex-col items-center">
+              <img 
+                src={restaurantSettings.logo_url} 
+                alt={`${restaurantSettings.name} Logo`}
+                className="h-24 w-auto object-contain mb-4"
+              />
+              <h1 className="text-4xl font-bold text-center text-gradient">
+                {restaurantSettings.name}
+              </h1>
+            </div>
+          ) : (
+            <div className="text-center">
+              <h1 className="text-4xl font-bold mb-2 text-gradient">
+                {restaurantSettings?.name || "Restaurant Menu"}
+              </h1>
+            </div>
+          )}
         </div>
+        
         <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-5xl font-bold mb-4 text-gradient">Bar Menu</h1>
           <p className="text-muted-foreground text-lg">Discover our selection of drinks and food</p>
         </div>
 

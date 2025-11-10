@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, LogOut, Plus, Pencil, Trash2, QrCode, Download, Printer } from "lucide-react";
+import { Loader2, LogOut, Plus, Pencil, Trash2, QrCode, Download, Printer, Upload } from "lucide-react";
 import { Session } from "@supabase/supabase-js";
 import QRCode from "qrcode";
 
@@ -35,16 +35,26 @@ interface Offer {
   updated_at: string | null;
 }
 
+interface RestaurantSettings {
+  id: string;
+  name: string;
+  logo_url: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [offers, setOffers] = useState<Offer[]>([]);
+  const [restaurantSettings, setRestaurantSettings] = useState<RestaurantSettings | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [editingOffer, setEditingOffer] = useState<Offer | null>(null);
   const [offerDialogOpen, setOfferDialogOpen] = useState(false);
+  const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -57,6 +67,10 @@ const AdminDashboard = () => {
     title: "",
     description: "",
     is_active: false,
+  });
+  const [settingsFormData, setSettingsFormData] = useState({
+    name: "",
+    logo_url: "",
   });
   const [tableNumber, setTableNumber] = useState("");
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
@@ -86,7 +100,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (session) {
-      Promise.all([fetchMenuItems(), fetchOffers()]);
+      Promise.all([fetchMenuItems(), fetchOffers(), fetchRestaurantSettings()]);
     }
   }, [session]);
 
@@ -118,6 +132,28 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error("Error fetching offers:", error);
       toast.error("Failed to load offers");
+    }
+  };
+
+  const fetchRestaurantSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("restaurant_settings")
+        .select("*")
+        .limit(1);
+
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        setRestaurantSettings(data[0]);
+        setSettingsFormData({
+          name: data[0].name,
+          logo_url: data[0].logo_url || "",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching restaurant settings:", error);
+      toast.error("Failed to load restaurant settings");
     }
   };
 
@@ -295,6 +331,69 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleSettingsSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const settingsData = {
+        name: settingsFormData.name,
+        logo_url: settingsFormData.logo_url || null,
+      };
+
+      if (restaurantSettings) {
+        const { error } = await supabase
+          .from("restaurant_settings")
+          .update(settingsData)
+          .eq("id", restaurantSettings.id);
+
+        if (error) throw error;
+        toast.success("Settings updated successfully!");
+      } else {
+        const { error } = await supabase.from("restaurant_settings").insert([settingsData]);
+
+        if (error) throw error;
+        toast.success("Settings created successfully!");
+      }
+
+      setSettingsDialogOpen(false);
+      fetchRestaurantSettings();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to save settings");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setLoading(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `logos/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('images')
+        .getPublicUrl(filePath);
+
+      setSettingsFormData({ ...settingsFormData, logo_url: publicUrl });
+      toast.success("Logo uploaded successfully!");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to upload logo");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const generateQRCode = async () => {
     if (!tableNumber.trim()) {
       toast.error("Please enter a table number");
@@ -399,6 +498,43 @@ const AdminDashboard = () => {
             Logout
           </Button>
         </div>
+
+        {/* Restaurant Settings Card */}
+        <Card className="border-border bg-card animate-fade-in mb-8">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle>Restaurant Settings</CardTitle>
+                <CardDescription>Manage your restaurant name and logo</CardDescription>
+              </div>
+              <Button onClick={() => setSettingsDialogOpen(true)}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit Settings
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-4">
+              {restaurantSettings?.logo_url ? (
+                <img 
+                  src={restaurantSettings.logo_url} 
+                  alt="Restaurant Logo" 
+                  className="h-16 w-16 object-contain rounded-lg border"
+                />
+              ) : (
+                <div className="h-16 w-16 rounded-lg border flex items-center justify-center bg-muted">
+                  <Upload className="h-8 w-8 text-muted-foreground" />
+                </div>
+              )}
+              <div>
+                <h3 className="text-xl font-bold">{restaurantSettings?.name || "Restaurant Name"}</h3>
+                <p className="text-muted-foreground text-sm">
+                  {restaurantSettings?.logo_url ? "Logo uploaded" : "No logo uploaded"}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card className="border-border bg-card animate-fade-in">
           <CardHeader>
@@ -807,6 +943,66 @@ const AdminDashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Restaurant Settings Dialog */}
+      <Dialog open={settingsDialogOpen} onOpenChange={setSettingsDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Restaurant Settings</DialogTitle>
+            <DialogDescription>
+              Update your restaurant name and logo
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSettingsSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="restaurant-name">Restaurant Name *</Label>
+              <Input
+                id="restaurant-name"
+                value={settingsFormData.name}
+                onChange={(e) => setSettingsFormData({ ...settingsFormData, name: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="logo-url">Logo URL</Label>
+              <Input
+                id="logo-url"
+                value={settingsFormData.logo_url}
+                onChange={(e) => setSettingsFormData({ ...settingsFormData, logo_url: e.target.value })}
+                placeholder="https://example.com/logo.png"
+              />
+              <div className="relative">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                  className="hidden"
+                  id="logo-upload"
+                />
+                <Label htmlFor="logo-upload" className="cursor-pointer">
+                  <Button type="button" variant="outline" className="w-full">
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload Logo
+                  </Button>
+                </Label>
+              </div>
+              {settingsFormData.logo_url && (
+                <div className="mt-2">
+                  <img 
+                    src={settingsFormData.logo_url} 
+                    alt="Preview" 
+                    className="h-16 w-16 object-contain rounded-lg border"
+                  />
+                </div>
+              )}
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save Settings
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Print-only styles */}
       <style>{`
