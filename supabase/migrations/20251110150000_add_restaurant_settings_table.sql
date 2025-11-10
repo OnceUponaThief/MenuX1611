@@ -3,6 +3,9 @@ CREATE TABLE public.restaurant_settings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL DEFAULT 'Restaurant Name',
   logo_url TEXT,
+  currency_code TEXT DEFAULT 'INR',
+  language_code TEXT DEFAULT 'en',
+  timezone TEXT DEFAULT 'Asia/Kolkata',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
@@ -53,4 +56,5 @@ CREATE TRIGGER set_updated_at_restaurant_settings
   EXECUTE FUNCTION public.handle_updated_at_restaurant_settings();
 
 -- Insert default restaurant settings
-INSERT INTO public.restaurant_settings (name) VALUES ('Restaurant Name');
+INSERT INTO public.restaurant_settings (name, currency_code, language_code, timezone) 
+VALUES ('Restaurant Name', 'INR', 'en', 'Asia/Kolkata');

@@ -39,6 +39,9 @@ interface RestaurantSettings {
   id: string;
   name: string;
   logo_url: string | null;
+  currency_code: string | null;
+  language_code: string | null;
+  timezone: string | null;
   created_at: string | null;
   updated_at: string | null;
 }
@@ -71,6 +74,9 @@ const AdminDashboard = () => {
   const [settingsFormData, setSettingsFormData] = useState({
     name: "",
     logo_url: "",
+    currency_code: "INR",
+    language_code: "en",
+    timezone: "Asia/Kolkata",
   });
   const [tableNumber, setTableNumber] = useState("");
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
@@ -149,6 +155,9 @@ const AdminDashboard = () => {
         setSettingsFormData({
           name: data[0].name,
           logo_url: data[0].logo_url || "",
+          currency_code: data[0].currency_code || "INR",
+          language_code: data[0].language_code || "en",
+          timezone: data[0].timezone || "Asia/Kolkata",
         });
       }
     } catch (error) {
@@ -339,6 +348,9 @@ const AdminDashboard = () => {
       const settingsData = {
         name: settingsFormData.name,
         logo_url: settingsFormData.logo_url || null,
+        currency_code: settingsFormData.currency_code,
+        language_code: settingsFormData.language_code,
+        timezone: settingsFormData.timezone,
       };
 
       if (restaurantSettings) {
@@ -948,14 +960,14 @@ const AdminDashboard = () => {
       <Dialog open={settingsDialogOpen} onOpenChange={setSettingsDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Restaurant Settings</DialogTitle>
+            <DialogTitle>{t("restaurant_settings")}</DialogTitle>
             <DialogDescription>
-              Update your restaurant name and logo
+              {t("manage_restaurant")}
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSettingsSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="restaurant-name">Restaurant Name *</Label>
+              <Label htmlFor="restaurant-name">{t("restaurant_name")} *</Label>
               <Input
                 id="restaurant-name"
                 value={settingsFormData.name}
@@ -963,6 +975,52 @@ const AdminDashboard = () => {
                 required
               />
             </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="currency-code">Currency</Label>
+                <Select
+                  value={settingsFormData.currency_code}
+                  onValueChange={(value) => setSettingsFormData({ ...settingsFormData, currency_code: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="INR">INR (₹) - Indian Rupee</SelectItem>
+                    <SelectItem value="USD">USD ($) - US Dollar</SelectItem>
+                    <SelectItem value="EUR">EUR (€) - Euro</SelectItem>
+                    <SelectItem value="GBP">GBP (£) - British Pound</SelectItem>
+                    <SelectItem value="JPY">JPY (¥) - Japanese Yen</SelectItem>
+                    <SelectItem value="AUD">AUD (A$) - Australian Dollar</SelectItem>
+                    <SelectItem value="CAD">CAD (C$) - Canadian Dollar</SelectItem>
+                    <SelectItem value="CHF">CHF (CHF) - Swiss Franc</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="language-code">Language</Label>
+                <Select
+                  value={settingsFormData.language_code}
+                  onValueChange={(value) => setSettingsFormData({ ...settingsFormData, language_code: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="es">Español (Spanish)</SelectItem>
+                    <SelectItem value="fr">Français (French)</SelectItem>
+                    <SelectItem value="hi">हिंदी (Hindi)</SelectItem>
+                    <SelectItem value="de">Deutsch (German)</SelectItem>
+                    <SelectItem value="ja">日本語 (Japanese)</SelectItem>
+                    <SelectItem value="zh">中文 (Chinese)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
             <div className="space-y-2">
               <Label htmlFor="logo-url">Logo URL</Label>
               <Input
@@ -998,7 +1056,7 @@ const AdminDashboard = () => {
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Save Settings
+              {t("save")}
             </Button>
           </form>
         </DialogContent>

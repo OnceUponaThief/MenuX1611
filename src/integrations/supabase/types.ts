@@ -82,6 +82,9 @@ export type Database = {
           id: string
           name: string
           logo_url: string | null
+          currency_code: string | null
+          language_code: string | null
+          timezone: string | null
           created_at: string | null
           updated_at: string | null
         }
@@ -89,6 +92,9 @@ export type Database = {
           id?: string
           name?: string
           logo_url?: string | null
+          currency_code?: string | null
+          language_code?: string | null
+          timezone?: string | null
           created_at?: string | null
           updated_at?: string | null
         }
@@ -96,6 +102,9 @@ export type Database = {
           id?: string
           name?: string
           logo_url?: string | null
+          currency_code?: string | null
+          language_code?: string | null
+          timezone?: string | null
           created_at?: string | null
           updated_at?: string | null
         }

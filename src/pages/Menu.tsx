@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { MenuCard } from "@/components/MenuCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { formatCurrency } from "@/lib/currency";
 
 interface MenuItem {
   id: string;
@@ -28,6 +30,9 @@ interface RestaurantSettings {
   id: string;
   name: string;
   logo_url: string | null;
+  currency_code: string | null;
+  language_code: string | null;
+  timezone: string | null;
   created_at: string | null;
   updated_at: string | null;
 }
@@ -39,6 +44,7 @@ const CATEGORY_GROUPS = {
 };
 
 const Menu = () => {
+  const { t, i18n } = useTranslation();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [restaurantSettings, setRestaurantSettings] = useState<RestaurantSettings | null>(null);
@@ -48,6 +54,13 @@ const Menu = () => {
   useEffect(() => {
     Promise.all([fetchMenuItems(), fetchOffers(), fetchRestaurantSettings()]);
   }, []);
+
+  useEffect(() => {
+    // Update language when restaurant settings change
+    if (restaurantSettings?.language_code) {
+      i18n.changeLanguage(restaurantSettings.language_code);
+    }
+  }, [restaurantSettings, i18n]);
 
   const fetchMenuItems = async () => {
     try {
@@ -161,6 +174,26 @@ const Menu = () => {
     return Array.from(new Set(items.map(item => item.category)));
   };
 
+  // Format price based on restaurant settings
+  const formatPrice = (price: number) => {
+    const currencyCode = restaurantSettings?.currency_code || 'INR';
+    const languageCode = restaurantSettings?.language_code || 'en';
+    
+    // Map language code to locale
+    const localeMap: Record<string, string> = {
+      'en': 'en-US',
+      'es': 'es-ES',
+      'fr': 'fr-FR',
+      'hi': 'hi-IN',
+      'de': 'de-DE',
+      'ja': 'ja-JP',
+      'zh': 'zh-CN'
+    };
+    
+    const locale = localeMap[languageCode] || 'en-US';
+    return formatCurrency(price, currencyCode, locale);
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -190,34 +223,34 @@ const Menu = () => {
           ) : (
             <div className="text-center">
               <h1 className="text-4xl font-bold mb-2 text-gradient">
-                {restaurantSettings?.name || "Restaurant Menu"}
+                {restaurantSettings?.name || t("restaurant_menu")}
               </h1>
             </div>
           )}
         </div>
         
         <div className="text-center mb-12 animate-fade-in">
-          <p className="text-muted-foreground text-lg">Discover our selection of drinks and food</p>
+          <p className="text-muted-foreground text-lg">{t("discover_selection")}</p>
         </div>
 
         {/* Offers Section */}
         {offers.length > 0 && (
           <div className="mb-12 animate-fade-in">
-            <h2 className="text-3xl font-bold mb-6 text-center text-gradient">Special Offers</h2>
+            <h2 className="text-3xl font-bold mb-6 text-center text-gradient">{t("special_offers")}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {offers.map((offer) => (
                 <div key={offer.id} className="border border-border rounded-lg p-6 bg-card shadow-md hover:shadow-lg transition-shadow">
                   <div className="flex justify-between items-start mb-3">
                     <h3 className="text-xl font-bold text-foreground">{offer.title}</h3>
                     <Badge variant="secondary" className="bg-green-500 text-white">
-                      Special Offer
+                      {t("special_offers")}
                     </Badge>
                   </div>
                   {offer.description && (
                     <p className="text-muted-foreground mb-4">{offer.description}</p>
                   )}
                   <div className="text-sm text-primary font-medium">
-                    🎉 Limited Time Offer
+                    🎉 {t("limited_time_offer")}
                   </div>
                 </div>
               ))}
@@ -227,16 +260,16 @@ const Menu = () => {
 
         {menuItems.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">No menu items available at the moment.</p>
+            <p className="text-muted-foreground text-lg">{t("no_items_available")}</p>
           </div>
         ) : (
           <div className="space-y-12">
             {/* Drinks Section */}
             <section>
-              <h2 className="text-3xl font-bold mb-6 text-foreground">Drinks & Beverages</h2>
+              <h2 className="text-3xl font-bold mb-6 text-foreground">{t("drinks_beverages")}</h2>
               <Tabs defaultValue="all" className="w-full">
                 <TabsList className="grid w-full mb-8" style={{ gridTemplateColumns: `repeat(${Math.max(getSubCategories('drinks').length, 1)}, minmax(0, 1fr))` }}>
-                  <TabsTrigger value="all" className="capitalize">All Drinks</TabsTrigger>
+                  <TabsTrigger value="all" className="capitalize">{t("all_drinks")}</TabsTrigger>
                   {getSubCategories('drinks').map((category) => (
                     <TabsTrigger key={category} value={category} className="capitalize">
                       {category}
@@ -253,7 +286,7 @@ const Menu = () => {
                           key={item.id}
                           name={item.name}
                           description={item.description || undefined}
-                          price={item.price}
+                          price={formatPrice(item.price)}
                           category={item.category}
                           imageUrl={item.image_url || undefined}
                           available={item.available}
@@ -273,7 +306,7 @@ const Menu = () => {
                             key={item.id}
                             name={item.name}
                             description={item.description || undefined}
-                            price={item.price}
+                            price={formatPrice(item.price)}
                             category={item.category}
                             imageUrl={item.image_url || undefined}
                             available={item.available}
@@ -287,10 +320,10 @@ const Menu = () => {
 
             {/* Food Section */}
             <section>
-              <h2 className="text-3xl font-bold mb-6 text-foreground">Food Menu</h2>
+              <h2 className="text-3xl font-bold mb-6 text-foreground">{t("food_menu")}</h2>
               <Tabs defaultValue="all" className="w-full">
                 <TabsList className="grid w-full mb-8" style={{ gridTemplateColumns: `repeat(${Math.max(getSubCategories('food').length, 1)}, minmax(0, 1fr))` }}>
-                  <TabsTrigger value="all" className="capitalize">All Food</TabsTrigger>
+                  <TabsTrigger value="all" className="capitalize">{t("all_food")}</TabsTrigger>
                   {getSubCategories('food').map((category) => (
                     <TabsTrigger key={category} value={category} className="capitalize">
                       {category}
@@ -307,7 +340,7 @@ const Menu = () => {
                           key={item.id}
                           name={item.name}
                           description={item.description || undefined}
-                          price={item.price}
+                          price={formatPrice(item.price)}
                           category={item.category}
                           imageUrl={item.image_url || undefined}
                           available={item.available}
@@ -327,7 +360,7 @@ const Menu = () => {
                             key={item.id}
                             name={item.name}
                             description={item.description || undefined}
-                            price={item.price}
+                            price={formatPrice(item.price)}
                             category={item.category}
                             imageUrl={item.image_url || undefined}
                             available={item.available}
@@ -342,7 +375,7 @@ const Menu = () => {
             {/* Other Categories (if any) */}
             {groupedCategories.other.length > 0 && (
               <section>
-                <h2 className="text-3xl font-bold mb-6 text-foreground">Other Items</h2>
+                <h2 className="text-3xl font-bold mb-6 text-foreground">{t("other_items")}</h2>
                 <Tabs defaultValue={groupedCategories.other[0] || "all"} className="w-full">
                   <TabsList className="grid w-full mb-8" style={{ gridTemplateColumns: `repeat(${groupedCategories.other.length || 1}, minmax(0, 1fr))` }}>
                     {groupedCategories.other.map((category) => (
@@ -363,7 +396,7 @@ const Menu = () => {
                               key={item.id}
                               name={item.name}
                               description={item.description || undefined}
-                              price={item.price}
+                              price={formatPrice(item.price)}
                               category={item.category}
                               imageUrl={item.image_url || undefined}
                               available={item.available}

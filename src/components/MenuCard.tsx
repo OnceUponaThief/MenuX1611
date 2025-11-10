@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 interface MenuCardProps {
   name: string;
   description?: string;
-  price: number;
+  price: string; // Changed from number to string to accept formatted price
   category: string;
   imageUrl?: string;
   available: boolean;
@@ -25,7 +25,7 @@ export const MenuCard = ({ name, description, price, category, imageUrl, availab
       <CardContent className="p-6">
         <div className="flex justify-between items-start mb-2">
           <h3 className="text-xl font-bold text-foreground">{name}</h3>
-          <span className="text-primary text-xl font-bold">₹{price.toFixed(2)}</span>
+          <span className="text-primary text-xl font-bold">{price}</span>
         </div>
         {description && (
           <p className="text-muted-foreground mb-3 text-sm">{description}</p>
