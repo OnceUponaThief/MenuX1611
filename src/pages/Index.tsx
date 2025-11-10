@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,19 +6,6 @@ import { QrCode, Settings, Eye } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
-
-  // Redirect customers directly to the menu page when they scan the QR code
-  useEffect(() => {
-    // Check if this is a direct visit (not a navigation within the app)
-    // This will redirect customers who scan the QR code pointing to the root URL
-    if (window.performance && window.performance.getEntriesByType("navigation").length > 0) {
-      const navigationEntry = window.performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
-      // If this is a direct visit (not a redirect), redirect to menu
-      if (navigationEntry.type === "navigate") {
-        navigate("/menu");
-      }
-    }
-  }, [navigate]);
 
   return (
     <div className="min-h-screen py-12 px-4">
