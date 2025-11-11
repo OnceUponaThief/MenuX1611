@@ -74,7 +74,7 @@ const AdminDashboard = () => {
     is_active: false,
   });
   const [settingsFormData, setSettingsFormData] = useState({
-    name: "LIVE - FOOD and LIQUID LOUNGE",
+    name: "Restaurant Name",
     logo_url: "",
     currency_code: "INR",
     language_code: "en",

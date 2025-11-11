@@ -74,9 +74,18 @@ async function createRestaurantSettingsTable() {
           EXECUTE FUNCTION public.handle_updated_at_restaurant_settings();
 
         -- Insert default restaurant settings
-        INSERT INTO public.restaurant_settings (name, currency_code, language_code, timezone) 
-        VALUES ('LIVE - FOOD and LIQUID LOUNGE', 'INR', 'en', 'Asia/Kolkata')
-        ON CONFLICT DO NOTHING;
+        const { error: insertError } = await supabase
+          .from('restaurant_settings')
+          .insert([
+            {
+              name: 'Restaurant Name', // Changed from 'LIVE - FOOD and LIQUID LOUNGE'
+              currency_code: 'INR',
+              language_code: 'en',
+              timezone: 'Asia/Kolkata'
+            }
+          ]);
+
+        if (insertError) throw insertError;
       `
     });
 

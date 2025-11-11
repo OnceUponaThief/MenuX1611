@@ -56,6 +56,10 @@ CREATE TRIGGER set_updated_at_restaurant_settings
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_updated_at_restaurant_settings();
 
+-- Insert default restaurant settings
+INSERT INTO public.restaurant_settings (name, currency_code, language_code, timezone)
+VALUES ('Restaurant Name', 'INR', 'en', 'Asia/Kolkata');
+
 -- Insert default restaurant settings if none exist
 INSERT INTO public.restaurant_settings (name, currency_code, language_code, timezone) 
 SELECT 'LIVE - FOOD and LIQUID LOUNGE', 'INR', 'en', 'Asia/Kolkata'
