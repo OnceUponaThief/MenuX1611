@@ -25,6 +25,19 @@ interface MenuItem {
   category: string;
   image_url: string | null;
   available: boolean;
+  modifiers?: Modifier[]; // Add modifiers field
+  dietary_preferences?: string[]; // Add dietary preferences field
+  seasonal?: boolean; // Add seasonal flag
+  chef_special?: boolean; // Add chef special flag
+}
+
+// Add new interface for modifiers
+interface Modifier {
+  id: string;
+  name: string;
+  price: number;
+  max_selections?: number;
+  required?: boolean;
 }
 
 interface Offer {
@@ -67,12 +80,46 @@ const AdminDashboard = () => {
     category: "drinks",
     image_url: "",
     available: true,
+    modifiers: [] as Modifier[], // Add modifiers array
+    dietary_preferences: [] as string[], // Add dietary preferences array
+    seasonal: false, // Add seasonal flag
+    chef_special: false, // Add chef special flag
   });
+
+  // Add new state for modifier form
+  const [modifierForm, setModifierForm] = useState({
+    id: "",
+    name: "",
+    price: "",
+    max_selections: "",
+    required: false,
+  });
+
+  // Add new state for dietary preferences
+  const [dietaryPreferences, setDietaryPreferences] = useState<string[]>([]);
+
+  // Add predefined dietary preferences
+  const predefinedDietaryPreferences = [
+    "Vegetarian",
+    "Vegan",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Nut-Free",
+    "Halal",
+    "Kosher",
+    "Low-Carb",
+    "Organic",
+    "Spicy"
+  ];
+
+  // Add new state for offer form
   const [offerFormData, setOfferFormData] = useState({
     title: "",
     description: "",
     is_active: false,
   });
+
+  // Add new state for settings form
   const [settingsFormData, setSettingsFormData] = useState({
     name: "Restaurant Name",
     logo_url: "",
@@ -80,10 +127,7 @@ const AdminDashboard = () => {
     language_code: "en",
     timezone: "Asia/Kolkata",
   });
-  const [tableNumber, setTableNumber] = useState("");
-  const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
-  const [bulkTables, setBulkTables] = useState("");
-  const [bulkQrCodes, setBulkQrCodes] = useState<Array<{ table: string; url: string }>>([]);
+
   // Add new state for admin management
   const [adminDialogOpen, setAdminDialogOpen] = useState(false);
   const [adminFormData, setAdminFormData] = useState({
@@ -98,6 +142,12 @@ const AdminDashboard = () => {
     dailyViews: [] as { date: string; views: number }[],
   });
   const [analyticsLoading, setAnalyticsLoading] = useState(true);
+
+  // Add missing state for QR code functionality
+  const [tableNumber, setTableNumber] = useState("");
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
+  const [bulkTables, setBulkTables] = useState("");
+  const [bulkQrCodes, setBulkQrCodes] = useState<Array<{ table: string; url: string }>>([]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -256,6 +306,10 @@ const AdminDashboard = () => {
         category: formData.category,
         image_url: formData.image_url || null,
         available: formData.available,
+        modifiers: formData.modifiers,
+        dietary_preferences: formData.dietary_preferences,
+        seasonal: formData.seasonal,
+        chef_special: formData.chef_special,
       };
 
       if (editingItem) {
@@ -282,6 +336,10 @@ const AdminDashboard = () => {
         category: "drinks",
         image_url: "",
         available: true,
+        modifiers: [],
+        dietary_preferences: [],
+        seasonal: false,
+        chef_special: false,
       });
       fetchMenuItems();
     } catch (error: any) {
@@ -300,6 +358,10 @@ const AdminDashboard = () => {
       category: item.category,
       image_url: item.image_url || "",
       available: item.available,
+      modifiers: item.modifiers || [],
+      dietary_preferences: item.dietary_preferences || [],
+      seasonal: item.seasonal || false,
+      chef_special: item.chef_special || false,
     });
     setDialogOpen(true);
   };
@@ -331,6 +393,56 @@ const AdminDashboard = () => {
     } catch (error: any) {
       toast.error(error.message || "Failed to update availability");
     }
+  };
+
+  // Add function to add a modifier
+  const addModifier = () => {
+    if (modifierForm.name && modifierForm.price) {
+      const newModifier: Modifier = {
+        id: modifierForm.id || Math.random().toString(36).substr(2, 9),
+        name: modifierForm.name,
+        price: parseFloat(modifierForm.price),
+        max_selections: modifierForm.max_selections ? parseInt(modifierForm.max_selections) : undefined,
+        required: modifierForm.required,
+      };
+
+      setFormData({
+        ...formData,
+        modifiers: [...formData.modifiers, newModifier],
+      });
+
+      // Reset modifier form
+      setModifierForm({
+        id: "",
+        name: "",
+        price: "",
+        max_selections: "",
+        required: false,
+      });
+    }
+  };
+
+  // Add function to remove a modifier
+  const removeModifier = (id: string) => {
+    setFormData({
+      ...formData,
+      modifiers: formData.modifiers.filter(mod => mod.id !== id),
+    });
+  };
+
+  // Add function to toggle dietary preference
+  const toggleDietaryPreference = (preference: string) => {
+    setFormData(prev => {
+      const currentPreferences = prev.dietary_preferences || [];
+      const newPreferences = currentPreferences.includes(preference)
+        ? currentPreferences.filter(p => p !== preference)
+        : [...currentPreferences, preference];
+      
+      return {
+        ...prev,
+        dietary_preferences: newPreferences,
+      };
+    });
   };
 
   const handleOfferSubmit = async (e: React.FormEvent) => {
@@ -813,6 +925,10 @@ const AdminDashboard = () => {
                       category: "drinks",
                       image_url: "",
                       available: true,
+                      modifiers: [],
+                      dietary_preferences: [],
+                      seasonal: false,
+                      chef_special: false,
                     });
                   }}>
                     <Plus className="mr-2 h-4 w-4" />
@@ -921,6 +1037,118 @@ const AdminDashboard = () => {
                         </div>
                       )}
                     </div>
+
+                    {/* Modifiers Section */}
+                    <div className="space-y-4 border-t pt-4">
+                      <h3 className="text-lg font-medium">Item Modifiers (Extras & Customizations)</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Add options like extra toppings, substitutions, or special requests
+                      </p>
+                      
+                      {/* Add Modifier Form */}
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+                        <div className="md:col-span-2">
+                          <Label htmlFor="modifier-name">Modifier Name</Label>
+                          <Input
+                            id="modifier-name"
+                            value={modifierForm.name}
+                            onChange={(e) => setModifierForm({...modifierForm, name: e.target.value})}
+                            placeholder="e.g., Extra Cheese"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="modifier-price">Additional Price</Label>
+                          <Input
+                            id="modifier-price"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={modifierForm.price}
+                            onChange={(e) => setModifierForm({...modifierForm, price: e.target.value})}
+                            placeholder="0.00"
+                          />
+                        </div>
+                        <div className="flex items-end">
+                          <Button type="button" onClick={addModifier} className="w-full">
+                            Add
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      {/* Modifiers List */}
+                      {formData.modifiers.length > 0 && (
+                        <div className="border rounded-lg p-3">
+                          <h4 className="font-medium mb-2">Added Modifiers:</h4>
+                          <div className="space-y-2">
+                            {formData.modifiers.map((modifier) => (
+                              <div key={modifier.id} className="flex justify-between items-center bg-secondary/50 p-2 rounded">
+                                <div>
+                                  <span className="font-medium">{modifier.name}</span>
+                                  <span className="text-muted-foreground ml-2">
+                                    +₹{modifier.price.toFixed(2)}
+                                  </span>
+                                </div>
+                                <Button 
+                                  type="button" 
+                                  variant="destructive" 
+                                  size="sm"
+                                  onClick={() => removeModifier(modifier.id)}
+                                >
+                                  Remove
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Dietary Preferences Section */}
+                    <div className="space-y-4 border-t pt-4">
+                      <h3 className="text-lg font-medium">Dietary Preferences</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Select applicable dietary preferences for this item
+                      </p>
+                      
+                      <div className="flex flex-wrap gap-2">
+                        {predefinedDietaryPreferences.map((preference) => (
+                          <Button
+                            key={preference}
+                            type="button"
+                            variant={formData.dietary_preferences?.includes(preference) ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => toggleDietaryPreference(preference)}
+                            className="capitalize"
+                          >
+                            {preference}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Seasonal & Chef Special Section */}
+                    <div className="space-y-4 border-t pt-4">
+                      <h3 className="text-lg font-medium">Special Categories</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="seasonal"
+                            checked={formData.seasonal}
+                            onCheckedChange={(checked) => setFormData({ ...formData, seasonal: checked })}
+                          />
+                          <Label htmlFor="seasonal">Seasonal Item</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="chef-special"
+                            checked={formData.chef_special}
+                            onCheckedChange={(checked) => setFormData({ ...formData, chef_special: checked })}
+                          />
+                          <Label htmlFor="chef-special">Chef's Special</Label>
+                        </div>
+                      </div>
+                    </div>
+
                     <Button type="submit" className="w-full" disabled={loading}>
                       {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       {editingItem ? "Update Item" : "Add Item"}
@@ -1275,7 +1503,7 @@ const AdminDashboard = () => {
                     </div>
                     <div className="h-12 w-12 rounded-full bg-purple-500/20 flex items-center justify-center">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888c-.783.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                       </svg>
                     </div>
                   </div>
