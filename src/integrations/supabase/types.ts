@@ -77,6 +77,39 @@ export type Database = {
         }
         Relationships: []
       }
+      restaurant_settings: {
+        Row: {
+          created_at: string | null
+          currency_code: string
+          id: string
+          language_code: string
+          logo_url: string | null
+          name: string
+          timezone: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          currency_code?: string
+          id?: string
+          language_code?: string
+          logo_url?: string | null
+          name?: string
+          timezone?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          currency_code?: string
+          id?: string
+          language_code?: string
+          logo_url?: string | null
+          name?: string
+          timezone?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
