@@ -1,4 +1,4 @@
-// Script to update alcohol prices to local prices in premium bars in Hinjewadi Pune
+// Script to generate SQL update commands for alcohol prices
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 
@@ -12,7 +12,7 @@ const supabase = createClient(
 );
 
 // Updated prices for premium bars in Hinjewadi Pune (in INR)
-// Format: { id: "item_id", newPrice: new_price }
+// Format: { name: "item_name", newPrice: new_price }
 const updatedPrices = [
   // Beer - Premium pricing for Hinjewadi bars
   { name: "BUDWEISER PREMIUM", newPrice: 450 },
@@ -148,8 +148,8 @@ const updatedPrices = [
   { name: "MANGO", newPrice: 300 },
 ];
 
-async function updateAlcoholPrices() {
-  console.log("Updating alcohol prices to local rates in Hinjewadi Pune...");
+async function generateSQLUpdates() {
+  console.log("-- SQL commands to update alcohol prices to local rates in Hinjewadi Pune\n");
   
   try {
     // Fetch all menu items
@@ -162,57 +162,46 @@ async function updateAlcoholPrices() {
       return;
     }
     
-    console.log(`Found ${menuItems.length} menu items`);
-    
-    let updatedCount = 0;
-    let errorCount = 0;
+    console.log(`-- Found ${menuItems.length} menu items\n`);
     
     // Create a map of item names to IDs for quick lookup
     const itemMap = {};
     menuItems.forEach(item => {
-      itemMap[item.name] = item.id;
+      itemMap[item.name] = { id: item.id, currentPrice: item.price };
     });
     
-    // Update prices for matching items
+    let updateCount = 0;
+    
+    // Generate SQL update commands for matching items
     for (const priceUpdate of updatedPrices) {
-      const itemId = itemMap[priceUpdate.name];
+      const item = itemMap[priceUpdate.name];
       
-      if (itemId) {
-        try {
-          const { data, error: updateError } = await supabase
-            .from('menu_items')
-            .update({ price: priceUpdate.newPrice })
-            .eq('id', itemId)
-            .select();
-          
-          if (updateError) {
-            console.error(`Error updating ${priceUpdate.name}:`, updateError.message);
-            errorCount++;
-          } else if (data && data.length > 0) {
-            console.log(`Updated ${priceUpdate.name} from ₹${data[0].price} to ₹${priceUpdate.newPrice}`);
-            updatedCount++;
-          } else {
-            console.log(`No rows updated for ${priceUpdate.name}`);
-          }
-        } catch (updateError) {
-          console.error(`Exception updating ${priceUpdate.name}:`, updateError.message);
-          errorCount++;
-        }
+      if (item) {
+        console.log(`UPDATE menu_items SET price = ${priceUpdate.newPrice} WHERE id = '${item.id}'; -- ${priceUpdate.name}: ₹${item.currentPrice} → ₹${priceUpdate.newPrice}`);
+        updateCount++;
       } else {
-        console.log(`Item not found: ${priceUpdate.name}`);
+        // Try partial match for items with special characters
+        const partialMatches = Object.keys(itemMap).filter(name => 
+          name.includes(priceUpdate.name) || priceUpdate.name.includes(name)
+        );
+        
+        if (partialMatches.length > 0) {
+          const matchedName = partialMatches[0];
+          const matchedItem = itemMap[matchedName];
+          console.log(`UPDATE menu_items SET price = ${priceUpdate.newPrice} WHERE id = '${matchedItem.id}'; -- ${matchedName}: ₹${matchedItem.currentPrice} → ₹${priceUpdate.newPrice} (partial match for "${priceUpdate.name}")`);
+          updateCount++;
+        } else {
+          console.log(`-- Item not found: "${priceUpdate.name}"`);
+        }
       }
     }
     
-    console.log(`\n=== SUMMARY ===`);
-    console.log(`Successfully updated ${updatedCount} menu items`);
-    if (errorCount > 0) {
-      console.log(`Failed to update ${errorCount} menu items`);
-    }
+    console.log(`\n-- Total items to update: ${updateCount}`);
     
   } catch (error) {
-    console.error("Error updating alcohol prices:", error.message);
+    console.error("Error generating SQL updates:", error.message);
   }
 }
 
-// Run the update function
-updateAlcoholPrices();
+// Run the function
+generateSQLUpdates();
