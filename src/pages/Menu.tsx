@@ -39,8 +39,8 @@ interface RestaurantSettings {
 
 // Define category groups for better organization
 const CATEGORY_GROUPS = {
-  drinks: ["drinks", "cocktails", "beer", "wine", "whiskey", "vodka", "gin", "rum", "brandy"],
-  food: ["food", "appetizers", "soup", "main course", "rice", "noodles", "dal", "bread", "desserts"],
+  drinks: ["drinks", "cocktails", "beer", "wine", "whiskey", "vodka", "gin", "rum", "brandy", "beverages", "juice", "coffee", "tea"],
+  food: ["food", "appetizers", "soup", "main course", "rice", "noodles", "dal", "bread", "desserts", "starters", "meals", "snacks"],
 };
 
 const Menu = () => {
@@ -119,53 +119,21 @@ const Menu = () => {
     }
   };
 
-  // Group categories for tab display
-  const getGroupedCategories = () => {
-    const grouped: Record<string, string[]> = {
-      drinks: [],
-      food: [],
-      other: [],
-    };
-
-    categories.forEach((category) => {
-      const lowerCategory = category.toLowerCase();
-      let found = false;
-
-      // Check drinks group
-      if (CATEGORY_GROUPS.drinks.some((drinkCat) => lowerCategory.includes(drinkCat) || lowerCategory === drinkCat)) {
-        grouped.drinks.push(category);
-        found = true;
-      }
-
-      // Check food group
-      if (CATEGORY_GROUPS.food.some((foodCat) => lowerCategory.includes(foodCat) || lowerCategory === foodCat)) {
-        grouped.food.push(category);
-        found = true;
-      }
-
-      // If not found in any group, add to other
-      if (!found) {
-        grouped.other.push(category);
-      }
-    });
-
-    return grouped;
-  };
-
   // Filter items by group
   const getItemsByGroup = (group: string) => {
-    const groupedCategories = getGroupedCategories();
-    const groupCategories = groupedCategories[group as keyof typeof groupedCategories] || [];
-    
-    if (group === "other") {
-      // For "other" group, include all categories not in drinks or food
-      const allGroupedCategories = [...groupedCategories.drinks, ...groupedCategories.food];
-      return menuItems.filter(item => !allGroupedCategories.includes(item.category));
-    }
-    
-    return menuItems.filter(item => 
-      groupCategories.some(cat => cat === item.category)
-    );
+    return menuItems.filter(item => {
+      const lowerCategory = item.category.toLowerCase();
+      if (group === 'drinks') {
+        return CATEGORY_GROUPS.drinks.some(drinkCat => 
+          lowerCategory.includes(drinkCat) || lowerCategory === drinkCat
+        );
+      } else if (group === 'food') {
+        return CATEGORY_GROUPS.food.some(foodCat => 
+          lowerCategory.includes(foodCat) || lowerCategory === foodCat
+        );
+      }
+      return false;
+    });
   };
 
   // Get unique categories within a group for sub-tabs
@@ -201,8 +169,6 @@ const Menu = () => {
       </div>
     );
   }
-
-  const groupedCategories = getGroupedCategories();
 
   return (
     <div className="min-h-screen py-8 px-4 md:py-12">
@@ -266,133 +232,47 @@ const Menu = () => {
             <p className="text-muted-foreground text-lg">{t("no_items_available")}</p>
           </div>
         ) : (
-          <div className="space-y-8 md:space-y-12">
-            {/* Drinks Section */}
-            <section className="animate-slide-up">
-              <h2 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-foreground">{t("drinks_beverages")}</h2>
-              <Tabs defaultValue="all" className="w-full">
-                <TabsList className="w-full mb-6 md:mb-8 flex-nowrap overflow-x-auto">
-                  <TabsTrigger value="all" className="capitalize shrink-0">{t("all_drinks")}</TabsTrigger>
-                  {getSubCategories('drinks').map((category) => (
-                    <TabsTrigger key={category} value={category} className="capitalize shrink-0">
-                      {category}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-                
-                <TabsContent value="all">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                    {getItemsByGroup('drinks')
-                      .sort((a, b) => a.name.localeCompare(b.name))
-                      .map((item) => (
-                        <MenuCard
-                          key={item.id}
-                          name={item.name}
-                          description={item.description || undefined}
-                          price={formatPrice(item.price)}
-                          category={item.category}
-                          imageUrl={item.image_url || undefined}
-                          available={item.available}
-                        />
-                      ))}
-                  </div>
-                </TabsContent>
-                
-                {getSubCategories('drinks').map((category) => (
-                  <TabsContent key={category} value={category}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                      {getItemsByGroup('drinks')
-                        .filter(item => item.category === category)
-                        .sort((a, b) => a.name.localeCompare(b.name))
-                        .map((item) => (
-                          <MenuCard
-                            key={item.id}
-                            name={item.name}
-                            description={item.description || undefined}
-                            price={formatPrice(item.price)}
-                            category={item.category}
-                            imageUrl={item.image_url || undefined}
-                            available={item.available}
-                          />
-                        ))}
-                    </div>
-                  </TabsContent>
-                ))}
-              </Tabs>
-            </section>
+          <Tabs defaultValue="drinks" className="w-full animate-fade-in">
+            {/* Main Category Tabs - FOOD and DRINK */}
+            <TabsList className="w-full mb-8 md:mb-12 grid grid-cols-2 h-14 md:h-16">
+              <TabsTrigger 
+                value="drinks" 
+                className="text-base md:text-xl font-bold data-[state=active]:bg-primary/20 data-[state=active]:text-primary"
+              >
+                🍹 DRINKS
+              </TabsTrigger>
+              <TabsTrigger 
+                value="food" 
+                className="text-base md:text-xl font-bold data-[state=active]:bg-primary/20 data-[state=active]:text-primary"
+              >
+                🍽️ FOOD
+              </TabsTrigger>
+            </TabsList>
 
-            {/* Food Section */}
-            <section className="animate-slide-up">
-              <h2 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-foreground">{t("food_menu")}</h2>
-              <Tabs defaultValue="all" className="w-full">
-                <TabsList className="w-full mb-6 md:mb-8 flex-nowrap overflow-x-auto">
-                  <TabsTrigger value="all" className="capitalize shrink-0">{t("all_food")}</TabsTrigger>
-                  {getSubCategories('food').map((category) => (
-                    <TabsTrigger key={category} value={category} className="capitalize shrink-0">
-                      {category}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-                
-                <TabsContent value="all">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                    {getItemsByGroup('food')
-                      .sort((a, b) => a.name.localeCompare(b.name))
-                      .map((item) => (
-                        <MenuCard
-                          key={item.id}
-                          name={item.name}
-                          description={item.description || undefined}
-                          price={formatPrice(item.price)}
-                          category={item.category}
-                          imageUrl={item.image_url || undefined}
-                          available={item.available}
-                        />
-                      ))}
-                  </div>
-                </TabsContent>
-                
-                {getSubCategories('food').map((category) => (
-                  <TabsContent key={category} value={category}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                      {getItemsByGroup('food')
-                        .filter(item => item.category === category)
-                        .sort((a, b) => a.name.localeCompare(b.name))
-                        .map((item) => (
-                          <MenuCard
-                            key={item.id}
-                            name={item.name}
-                            description={item.description || undefined}
-                            price={formatPrice(item.price)}
-                            category={item.category}
-                            imageUrl={item.image_url || undefined}
-                            available={item.available}
-                          />
-                        ))}
-                    </div>
-                  </TabsContent>
-                ))}
-              </Tabs>
-            </section>
-
-            {/* Other Categories (if any) */}
-            {groupedCategories.other.length > 0 && (
-              <section className="animate-slide-up">
-                <h2 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-foreground">{t("other_items")}</h2>
-                <Tabs defaultValue={groupedCategories.other[0] || "all"} className="w-full">
-                  <TabsList className="w-full mb-6 md:mb-8 flex-nowrap overflow-x-auto">
-                    {groupedCategories.other.map((category) => (
-                      <TabsTrigger key={category} value={category} className="capitalize shrink-0">
-                        {category}
+            {/* Drinks Tab Content */}
+            <TabsContent value="drinks" className="mt-0">
+              {getItemsByGroup('drinks').length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground text-lg">No drinks available at the moment</p>
+                </div>
+              ) : (
+                <div>
+                  {/* Drinks Sub-category Tabs */}
+                  <Tabs defaultValue="all-drinks" className="w-full">
+                    <TabsList className="w-full mb-6 md:mb-8 flex justify-start overflow-x-auto">
+                      <TabsTrigger value="all-drinks" className="capitalize shrink-0">
+                        All Drinks
                       </TabsTrigger>
-                    ))}
-                  </TabsList>
-                  
-                  {groupedCategories.other.map((category) => (
-                    <TabsContent key={category} value={category}>
+                      {getSubCategories('drinks').map((category) => (
+                        <TabsTrigger key={category} value={`drinks-${category}`} className="capitalize shrink-0">
+                          {category}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+                    
+                    <TabsContent value="all-drinks">
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                        {menuItems
-                          .filter((item) => item.category === category)
+                        {getItemsByGroup('drinks')
                           .sort((a, b) => a.name.localeCompare(b.name))
                           .map((item) => (
                             <MenuCard
@@ -407,11 +287,96 @@ const Menu = () => {
                           ))}
                       </div>
                     </TabsContent>
-                  ))}
-                </Tabs>
-              </section>
-            )}
-          </div>
+                    
+                    {getSubCategories('drinks').map((category) => (
+                      <TabsContent key={`drinks-${category}`} value={`drinks-${category}`}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                          {getItemsByGroup('drinks')
+                            .filter(item => item.category === category)
+                            .sort((a, b) => a.name.localeCompare(b.name))
+                            .map((item) => (
+                              <MenuCard
+                                key={item.id}
+                                name={item.name}
+                                description={item.description || undefined}
+                                price={formatPrice(item.price)}
+                                category={item.category}
+                                imageUrl={item.image_url || undefined}
+                                available={item.available}
+                              />
+                            ))}
+                        </div>
+                      </TabsContent>
+                    ))}
+                  </Tabs>
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Food Tab Content */}
+            <TabsContent value="food" className="mt-0">
+              {getItemsByGroup('food').length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground text-lg">No food items available at the moment</p>
+                </div>
+              ) : (
+                <div>
+                  {/* Food Sub-category Tabs */}
+                  <Tabs defaultValue="all-food" className="w-full">
+                    <TabsList className="w-full mb-6 md:mb-8 flex justify-start overflow-x-auto">
+                      <TabsTrigger value="all-food" className="capitalize shrink-0">
+                        All Food
+                      </TabsTrigger>
+                      {getSubCategories('food').map((category) => (
+                        <TabsTrigger key={category} value={`food-${category}`} className="capitalize shrink-0">
+                          {category}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+                    
+                    <TabsContent value="all-food">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                        {getItemsByGroup('food')
+                          .sort((a, b) => a.name.localeCompare(b.name))
+                          .map((item) => (
+                            <MenuCard
+                              key={item.id}
+                              name={item.name}
+                              description={item.description || undefined}
+                              price={formatPrice(item.price)}
+                              category={item.category}
+                              imageUrl={item.image_url || undefined}
+                              available={item.available}
+                            />
+                          ))}
+                      </div>
+                    </TabsContent>
+                    
+                    {getSubCategories('food').map((category) => (
+                      <TabsContent key={`food-${category}`} value={`food-${category}`}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                          {getItemsByGroup('food')
+                            .filter(item => item.category === category)
+                            .sort((a, b) => a.name.localeCompare(b.name))
+                            .map((item) => (
+                              <MenuCard
+                                key={item.id}
+                                name={item.name}
+                                description={item.description || undefined}
+                                price={formatPrice(item.price)}
+                                category={item.category}
+                                imageUrl={item.image_url || undefined}
+                                available={item.available}
+                              />
+                            ))}
+                        </div>
+                      </TabsContent>
+                    ))}
+                  </Tabs>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         )}
       </div>
     </div>
