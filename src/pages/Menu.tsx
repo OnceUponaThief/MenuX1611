@@ -297,278 +297,225 @@ const Menu = () => {
   }
 
   return (
-    <div className="min-h-screen py-8 px-4 md:py-12">
-      <div className="max-w-6xl mx-auto">
-        {/* Restaurant Name Header */}
-        <div className="mb-8 text-center animate-fade-in">
-          <h1 className="text-5xl font-bold text-gradient mb-2">
-            LIVE - FOOD and LIQUID LOUNGE
-          </h1>
-        </div>
-        
+    <div className="min-h-screen py-8 px-4 relative">
+      {/* Circuit board background pattern */}
+      <div className="absolute inset-0 z-0 opacity-5">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `
+            linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px)
+          `,
+          backgroundSize: '20px 20px'
+        }}></div>
+      </div>
+      
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Restaurant Header */}
         <div className="mb-8 md:mb-12 animate-fade-in">
           {restaurantSettings?.logo_url ? (
             <div className="flex flex-col items-center gap-4">
               <div className="relative">
-                <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full"></div>
+                <div className="absolute inset-0 bg-cyan-500/20 blur-3xl rounded-full"></div>
                 <img 
                   src={restaurantSettings.logo_url} 
                   alt={`${restaurantSettings.name} Logo`}
                   className="h-20 md:h-32 w-auto object-contain relative z-10 drop-shadow-2xl"
                 />
               </div>
-              <h1 className="text-3xl md:text-5xl font-bold text-center text-gradient">
+              <h1 className="text-3xl md:text-5xl font-bold text-center neon-gradient-text pixel-font">
                 {restaurantSettings.name}
               </h1>
             </div>
           ) : (
             <div className="text-center">
-              <h1 className="text-3xl md:text-5xl font-bold mb-2 text-gradient">
+              <h1 className="text-3xl md:text-5xl font-bold mb-2 neon-gradient-text pixel-font">
                 {restaurantSettings?.name || t("restaurant_menu")}
               </h1>
             </div>
           )}
         </div>
-        
-        <div className="text-center mb-8 md:mb-12 animate-fade-in">
-          <p className="text-muted-foreground text-base md:text-lg">{t("discover_selection")}</p>
-        </div>
 
-        {/* Search Bar - Always visible */}
-        <div className="mb-8 max-w-2xl mx-auto">
+        {/* Search Bar */}
+        <div className="mb-8 max-w-2xl mx-auto animate-fade-in">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-cyan-400" size={20} />
             <Input
               type="text"
-              placeholder={t("search_menu_items")}
-              className="pl-10 pr-20 py-6 text-lg rounded-full border-2 border-primary/30 shadow-md focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+              placeholder={t("search_placeholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-4 py-6 text-lg bg-black/50 border-2 border-cyan-500/30 text-white placeholder-cyan-300/50 rounded-xl focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 transition-all"
             />
-            {searchQuery && (
-              <button
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                onClick={() => setSearchQuery("")}
-              >
-                Clear
-              </button>
-            )}
-          </div>
-          <div className="text-center mt-2">
-            <p className="text-sm text-muted-foreground">
-              🔍 Search for items by name, description, or category
-            </p>
           </div>
         </div>
 
-        {/* Search Results Info */}
-        {searchQuery && (
-          <div className="mb-6 text-center">
-            <p className="text-muted-foreground">
-              {filteredMenuItems.length} {t("items_found_for")} "{searchQuery}"
-            </p>
-          </div>
-        )}
-
-        {/* Offers Section */}
-        {offers.length > 0 && (
-          <div className="mb-8 md:mb-12 animate-fade-in">
-            <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center text-gradient">{t("special_offers")}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {offers.map((offer) => (
-                <div key={offer.id} className="glass-card border-border/50 rounded-xl p-6 card-glow-hover">
-                  <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-lg md:text-xl font-bold text-foreground">{offer.title}</h3>
-                    <Badge variant="secondary" className="bg-green-500/80 backdrop-blur-sm text-white text-xs">
-                      {t("special_offers")}
-                    </Badge>
+        {/* Active Offers */}
+        {activeOffers.length > 0 && (
+          <div className="mb-8 animate-fade-in">
+            <div className="tech-card neon-border rounded-xl overflow-hidden">
+              <div className="tech-card-header">
+                <h2 className="text-2xl font-bold neon-gradient-text pixel-font flex items-center gap-2">
+                  <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span>
+                  {t("offers_and_promotions")}
+                </h2>
+              </div>
+              <div className="p-4 space-y-3">
+                {activeOffers.map((offer) => (
+                  <div key={offer.id} className="flex items-center gap-3 p-3 bg-black/30 rounded-lg border border-pink-500/30">
+                    <div className="flex-shrink-0 w-3 h-3 bg-pink-500 rounded-full animate-pulse"></div>
+                    <div>
+                      <h3 className="font-bold text-pink-300">{offer.title}</h3>
+                      {offer.description && (
+                        <p className="text-sm text-gray-300 mt-1">{offer.description}</p>
+                      )}
+                    </div>
                   </div>
-                  {offer.description && (
-                    <p className="text-muted-foreground mb-4 text-sm">{offer.description}</p>
-                  )}
-                  <div className="text-xs md:text-sm text-primary font-medium">
-                    🎉 {t("limited_time_offer")}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         )}
 
-        {menuItems.length === 0 ? (
+        {/* Menu Tabs */}
+        <Tabs defaultValue="all" className="animate-fade-in">
+          <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 mb-8 bg-black/30 border border-cyan-500/30 rounded-xl p-1">
+            <TabsTrigger 
+              value="all" 
+              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-300 data-[state=active]:border-cyan-400 border border-transparent rounded-lg transition-all pixel-font"
+            >
+              {t("all")}
+            </TabsTrigger>
+            <TabsTrigger 
+              value="drinks" 
+              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-300 data-[state=active]:border-cyan-400 border border-transparent rounded-lg transition-all pixel-font"
+            >
+              {t("drinks")}
+            </TabsTrigger>
+            <TabsTrigger 
+              value="food" 
+              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-300 data-[state=active]:border-cyan-400 border border-transparent rounded-lg transition-all pixel-font"
+            >
+              {t("food")}
+            </TabsTrigger>
+            <TabsTrigger 
+              value="desserts" 
+              className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-300 data-[state=active]:border-cyan-400 border border-transparent rounded-lg transition-all pixel-font"
+            >
+              {t("desserts")}
+            </TabsTrigger>
+            <TabsTrigger 
+              value="specials" 
+              className="data-[state=active]:bg-pink-500/20 data-[state=active]:text-pink-300 data-[state=active]:border-pink-400 border border-transparent rounded-lg transition-all pixel-font"
+            >
+              {t("specials")}
+            </TabsTrigger>
+          </TabsList>
+
+          {/* All Items Tab */}
+          <TabsContent value="all" className="mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {getFilteredMenuItems().map((item) => (
+                <MenuCard
+                  key={item.id}
+                  name={item.name}
+                  description={item.description || undefined}
+                  price={formatPrice(item.price)}
+                  category={item.category}
+                  imageUrl={item.image_url || undefined}
+                  available={item.available}
+                />
+              ))}
+            </div>
+          </TabsContent>
+
+          {/* Drinks Tab */}
+          <TabsContent value="drinks" className="mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {getFilteredMenuItems()
+                .filter(item => 
+                  CATEGORY_GROUPS.drinks.some(cat => 
+                    item.category.toLowerCase().includes(cat) || item.category.toLowerCase() === cat
+                  )
+                )
+                .map((item) => (
+                  <MenuCard
+                    key={item.id}
+                    name={item.name}
+                    description={item.description || undefined}
+                    price={formatPrice(item.price)}
+                    category={item.category}
+                    imageUrl={item.image_url || undefined}
+                    available={item.available}
+                  />
+                ))}
+            </div>
+          </TabsContent>
+
+          {/* Food Tab */}
+          <TabsContent value="food" className="mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {getFilteredMenuItems()
+                .filter(item => 
+                  CATEGORY_GROUPS.food.some(cat => 
+                    item.category.toLowerCase().includes(cat) || item.category.toLowerCase() === cat
+                  )
+                )
+                .map((item) => (
+                  <MenuCard
+                    key={item.id}
+                    name={item.name}
+                    description={item.description || undefined}
+                    price={formatPrice(item.price)}
+                    category={item.category}
+                    imageUrl={item.image_url || undefined}
+                    available={item.available}
+                  />
+                ))}
+            </div>
+          </TabsContent>
+
+          {/* Desserts Tab */}
+          <TabsContent value="desserts" className="mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {getFilteredMenuItems()
+                .filter(item => item.category.toLowerCase().includes("dessert"))
+                .map((item) => (
+                  <MenuCard
+                    key={item.id}
+                    name={item.name}
+                    description={item.description || undefined}
+                    price={formatPrice(item.price)}
+                    category={item.category}
+                    imageUrl={item.image_url || undefined}
+                    available={item.available}
+                  />
+                ))}
+            </div>
+          </TabsContent>
+
+          {/* Specials Tab */}
+          <TabsContent value="specials" className="mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {getFilteredMenuItems()
+                .filter(item => !item.available) // Using unavailable items as specials for demo
+                .map((item) => (
+                  <MenuCard
+                    key={item.id}
+                    name={item.name}
+                    description={item.description || undefined}
+                    price={formatPrice(item.price)}
+                    category={item.category}
+                    imageUrl={item.image_url || undefined}
+                    available={item.available}
+                  />
+                ))}
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        {getFilteredMenuItems().length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">{t("no_items_available")}</p>
-          </div>
-        ) : (
-          <div className="space-y-12">
-            {/* Drinks Section */}
-            {(groupedCategories.drinks.length > 0 || searchQuery) && (
-              <section>
-                <h2 className="text-2xl md:text-3xl font-bold mb-6 text-foreground">
-                  {searchQuery ? t("search_results") : t("drinks_beverages")}
-                </h2>
-                <Tabs defaultValue="all" className="w-full">
-                  {!searchQuery && (
-                    <TabsList className="w-full mb-6 md:mb-8 flex justify-start overflow-x-auto">
-                      <TabsTrigger value="all" className="capitalize shrink-0">{t("all_drinks")}</TabsTrigger>
-                      {getSubCategories('drinks').map((category) => (
-                        <TabsTrigger key={category} value={category} className="capitalize shrink-0">
-                          {category}
-                        </TabsTrigger>
-                      ))}
-                    </TabsList>
-                  )}
-                  
-                  <TabsContent value="all">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                      {getFilteredItemsByGroup('drinks')
-                        .sort((a, b) => a.name.localeCompare(b.name))
-                        .map((item) => (
-                          <MenuCard
-                            key={item.id}
-                            name={item.name}
-                            description={item.description || undefined}
-                            price={formatPrice(item.price)}
-                            category={item.category}
-                            imageUrl={item.image_url || undefined}
-                            available={item.available}
-                          />
-                        ))}
-                    </div>
-                  </TabsContent>
-                  
-                  {!searchQuery && getSubCategories('drinks').map((category) => (
-                    <TabsContent key={category} value={category}>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                        {getItemsByGroup('drinks')
-                          .filter(item => item.category === category)
-                          .sort((a, b) => a.name.localeCompare(b.name))
-                          .map((item) => (
-                            <MenuCard
-                              key={item.id}
-                              name={item.name}
-                              description={item.description || undefined}
-                              price={formatPrice(item.price)}
-                              category={item.category}
-                              imageUrl={item.image_url || undefined}
-                              available={item.available}
-                            />
-                          ))}
-                      </div>
-                    </TabsContent>
-                  ))}
-                </Tabs>
-              </section>
-            )}
-
-            {/* Food Section */}
-            {(groupedCategories.food.length > 0 || searchQuery) && (
-              <section>
-                <h2 className="text-2xl md:text-3xl font-bold mb-6 text-foreground">
-                  {searchQuery ? t("search_results") : t("food_menu")}
-                </h2>
-                <Tabs defaultValue="all" className="w-full">
-                  {!searchQuery && (
-                    <TabsList className="w-full mb-6 md:mb-8 flex justify-start overflow-x-auto">
-                      <TabsTrigger value="all" className="capitalize shrink-0">{t("all_food")}</TabsTrigger>
-                      {getSubCategories('food').map((category) => (
-                        <TabsTrigger key={category} value={category} className="capitalize shrink-0">
-                          {category}
-                        </TabsTrigger>
-                      ))}
-                    </TabsList>
-                  )}
-                  
-                  <TabsContent value="all">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                      {getFilteredItemsByGroup('food')
-                        .sort((a, b) => a.name.localeCompare(b.name))
-                        .map((item) => (
-                          <MenuCard
-                            key={item.id}
-                            name={item.name}
-                            description={item.description || undefined}
-                            price={formatPrice(item.price)}
-                            category={item.category}
-                            imageUrl={item.image_url || undefined}
-                            available={item.available}
-                          />
-                        ))}
-                    </div>
-                  </TabsContent>
-                  
-                  {!searchQuery && getSubCategories('food').map((category) => (
-                    <TabsContent key={category} value={category}>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                        {getItemsByGroup('food')
-                          .filter(item => item.category === category)
-                          .sort((a, b) => a.name.localeCompare(b.name))
-                          .map((item) => (
-                            <MenuCard
-                              key={item.id}
-                              name={item.name}
-                              description={item.description || undefined}
-                              price={formatPrice(item.price)}
-                              category={item.category}
-                              imageUrl={item.image_url || undefined}
-                              available={item.available}
-                            />
-                          ))}
-                      </div>
-                    </TabsContent>
-                  ))}
-                </Tabs>
-              </section>
-            )}
-
-            {/* Other Categories (if any) */}
-            {((groupedCategories.other.length > 0 && !searchQuery) || (searchQuery && groupedCategories.other.length > 0)) && (
-              <section>
-                <h2 className="text-2xl md:text-3xl font-bold mb-6 text-foreground">
-                  {searchQuery ? t("search_results") : t("other_items")}
-                </h2>
-                <Tabs defaultValue={groupedCategories.other[0] || "all"} className="w-full">
-                  {!searchQuery && (
-                    <TabsList className="w-full mb-6 md:mb-8 flex justify-start overflow-x-auto">
-                      {groupedCategories.other.map((category) => (
-                        <TabsTrigger key={category} value={category} className="capitalize shrink-0">
-                          {category}
-                        </TabsTrigger>
-                      ))}
-                    </TabsList>
-                  )}
-                  
-                  {groupedCategories.other.map((category) => (
-                    <TabsContent key={category} value={category}>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                        {getFilteredItemsByGroup('other')
-                          .filter((item) => item.category === category)
-                          .sort((a, b) => a.name.localeCompare(b.name))
-                          .map((item) => (
-                            <MenuCard
-                              key={item.id}
-                              name={item.name}
-                              description={item.description || undefined}
-                              price={formatPrice(item.price)}
-                              category={item.category}
-                              imageUrl={item.image_url || undefined}
-                              available={item.available}
-                            />
-                          ))}
-                      </div>
-                    </TabsContent>
-                  ))}
-                </Tabs>
-              </section>
-            )}
-
-            {/* No search results */}
-            {searchQuery && filteredMenuItems.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground text-lg">{t("no_search_results")}</p>
-              </div>
-            )}
+            <p className="text-gray-400 text-lg">{t("no_items_found")}</p>
           </div>
         )}
       </div>
