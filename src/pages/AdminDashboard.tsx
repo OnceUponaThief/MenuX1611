@@ -90,6 +90,14 @@ const AdminDashboard = () => {
     username: "",
     password: "",
   });
+  // Add new state for analytics
+  const [analyticsData, setAnalyticsData] = useState({
+    totalViews: 0,
+    popularItems: [] as { name: string; views: number }[],
+    peakHours: [] as { hour: number; views: number }[],
+    dailyViews: [] as { date: string; views: number }[],
+  });
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -688,6 +696,38 @@ const AdminDashboard = () => {
     }
   };
 
+  // Add new function for fetching analytics data
+  const fetchAnalyticsData = async () => {
+    setAnalyticsLoading(true);
+
+    try {
+      const { data, error } = await supabase
+        .from("analytics")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        const analytics = data[0];
+        setAnalyticsData({
+          totalViews: analytics.total_views,
+          popularItems: analytics.popular_items,
+          peakHours: analytics.peak_hours,
+          dailyViews: analytics.daily_views,
+        });
+      } else {
+        toast.error("No analytics data found.");
+      }
+    } catch (error) {
+      console.error("Error fetching analytics data:", error);
+      toast.error("Failed to load analytics data");
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  };
+
   if (loading || !session) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -1178,6 +1218,157 @@ const AdminDashboard = () => {
         </Card>
       </div>
 
+      {/* Analytics Dashboard */}
+      <Card className="border-border bg-card animate-fade-in mt-8">
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Analytics Dashboard</CardTitle>
+              <CardDescription>Real-time insights into your menu performance</CardDescription>
+            </div>
+            <Button onClick={fetchAnalyticsData} variant="outline" disabled={analyticsLoading}>
+              {analyticsLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
+              Refresh Data
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {analyticsLoading ? (
+            <div className="flex justify-center items-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Total Views Card */}
+              <Card className="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border-cyan-500/30">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-cyan-300">Total Views</p>
+                      <h3 className="text-2xl font-bold text-white">{analyticsData.totalViews}</h3>
+                    </div>
+                    <div className="h-12 w-12 rounded-full bg-cyan-500/20 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Popular Items */}
+              <Card className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/30">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-purple-300">Popular Items</p>
+                      <h3 className="text-2xl font-bold text-white">{analyticsData.popularItems.length}</h3>
+                    </div>
+                    <div className="h-12 w-12 rounded-full bg-purple-500/20 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                      </svg>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Peak Hours */}
+              <Card className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-500/30">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-amber-300">Peak Hour</p>
+                      <h3 className="text-2xl font-bold text-white">
+                        {analyticsData.peakHours.length > 0 ? `${analyticsData.peakHours[0].hour}:00` : "N/A"}
+                      </h3>
+                    </div>
+                    <div className="h-12 w-12 rounded-full bg-amber-500/20 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Daily Average */}
+              <Card className="bg-gradient-to-br from-green-500/20 to-teal-500/20 border-green-500/30">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-green-300">Daily Average</p>
+                      <h3 className="text-2xl font-bold text-white">
+                        {analyticsData.dailyViews.length > 0 
+                          ? Math.round(analyticsData.dailyViews.reduce((sum, day) => sum + day.views, 0) / analyticsData.dailyViews.length)
+                          : 0}
+                      </h3>
+                    </div>
+                    <div className="h-12 w-12 rounded-full bg-green-500/20 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Popular Items Chart */}
+              <div className="md:col-span-2">
+                <Card className="h-full">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Popular Menu Items</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {analyticsData.popularItems.map((item, index) => (
+                        <div key={index} className="flex items-center">
+                          <div className="w-32 text-sm font-medium text-foreground truncate">{item.name}</div>
+                          <div className="flex-1 ml-4">
+                            <div className="flex items-center">
+                              <div 
+                                className="h-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full"
+                                style={{ width: `${(item.views / Math.max(...analyticsData.popularItems.map(i => i.views))) * 100}%` }}
+                              ></div>
+                              <span className="ml-2 text-xs text-muted-foreground">{item.views}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Peak Hours Chart */}
+              <div className="md:col-span-2">
+                <Card className="h-full">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Peak Hours</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-end h-32 gap-2 mt-4">
+                      {analyticsData.peakHours.map((hourData, index) => (
+                        <div key={index} className="flex flex-col items-center flex-1">
+                          <div 
+                            className="w-full bg-gradient-to-t from-cyan-500 to-blue-500 rounded-t"
+                            style={{ height: `${(hourData.views / Math.max(...analyticsData.peakHours.map(h => h.views))) * 100}%` }}
+                          ></div>
+                          <span className="mt-2 text-xs text-muted-foreground">{hourData.hour}:00</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Restaurant Settings Dialog */}
       <Dialog open={settingsDialogOpen} onOpenChange={setSettingsDialogOpen}>
         <DialogContent className="max-w-2xl">
@@ -1314,6 +1505,56 @@ const AdminDashboard = () => {
           .qr-print-item p {
             color: #000 !important;
             margin: 0.5rem 0 !important;
+          }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default AdminDashboard;
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Print-only styles */}
+      <style>{`
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          .print-preview,
+          .print-preview * {
+            visibility: visible;
+          }
+          .print-preview {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 1rem !important;
+            padding: 1rem;
+          }
+          .qr-print-item {
+            break-inside: avoid;
+            page-break-inside: avoid;
+            border: 2px solid #000 !important;
+            padding: 1rem !important;
+            background: white !important;
+          }
+          .qr-print-item p {
+            color: #000 !important;
+            margin: 0.5rem 0 !important;
+          }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default AdminDashboard;important;
           }
         }
       `}</style>

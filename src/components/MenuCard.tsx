@@ -12,7 +12,7 @@ interface MenuCardProps {
 
 export const MenuCard = ({ name, description, price, category, imageUrl, available }: MenuCardProps) => {
   return (
-    <Card className="overflow-hidden bg-black border border-cyan-500/30 rounded-xl shadow-lg hover:shadow-cyan-500/20 transition-all duration-300">
+    <Card className="overflow-hidden bg-black border border-cyan-500/30 rounded-xl shadow-lg hover:shadow-cyan-500/20 transition-all duration-300 touch-manipulation">
       {imageUrl && (
         <div className="aspect-video w-full overflow-hidden bg-gray-900">
           <img 
@@ -22,20 +22,20 @@ export const MenuCard = ({ name, description, price, category, imageUrl, availab
           />
         </div>
       )}
-      <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <h3 className="text-lg font-bold text-white">{name}</h3>
-          <span className="text-xl font-bold text-cyan-400">{price}</span>
+      <CardContent className="p-4 md:p-6">
+        <div className="flex justify-between items-start mb-3">
+          <h3 className="text-lg md:text-xl font-bold text-white leading-tight">{name}</h3>
+          <span className="text-xl md:text-2xl font-bold text-cyan-400">{price}</span>
         </div>
         {description && (
-          <p className="text-gray-300 mb-3 text-sm leading-relaxed">{description}</p>
+          <p className="text-gray-300 mb-4 text-sm md:text-base leading-relaxed">{description}</p>
         )}
         <div className="flex items-center gap-2 flex-wrap">
-          <Badge variant="secondary" className="text-xs bg-gray-800 text-cyan-300 border border-cyan-500/30">
+          <Badge variant="secondary" className="text-xs md:text-sm bg-gray-800 text-cyan-300 border border-cyan-500/30 px-3 py-1">
             {category}
           </Badge>
           {!available && (
-            <Badge variant="destructive" className="text-xs">
+            <Badge variant="destructive" className="text-xs md:text-sm px-3 py-1">
               Unavailable
             </Badge>
           )}
