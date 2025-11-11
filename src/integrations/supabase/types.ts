@@ -52,60 +52,60 @@ export type Database = {
       }
       offers: {
         Row: {
-          id: string
-          title: string
-          description: string | null
-          is_active: boolean | null
           created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          title: string
           updated_at: string | null
         }
         Insert: {
-          id?: string
-          title: string
-          description?: string | null
-          is_active?: boolean | null
           created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          title: string
           updated_at?: string | null
         }
         Update: {
-          id?: string
-          title?: string
-          description?: string | null
-          is_active?: boolean | null
           created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          title?: string
           updated_at?: string | null
         }
         Relationships: []
       }
       restaurant_settings: {
         Row: {
-          id: string
-          name: string
-          logo_url: string | null
-          currency_code: string | null
-          language_code: string | null
-          timezone: string | null
           created_at: string | null
+          currency_code: string
+          id: string
+          language_code: string
+          logo_url: string | null
+          name: string
+          timezone: string
           updated_at: string | null
         }
         Insert: {
-          id?: string
-          name?: string
-          logo_url?: string | null
-          currency_code?: string | null
-          language_code?: string | null
-          timezone?: string | null
           created_at?: string | null
+          currency_code?: string
+          id?: string
+          language_code?: string
+          logo_url?: string | null
+          name?: string
+          timezone?: string
           updated_at?: string | null
         }
         Update: {
-          id?: string
-          name?: string
-          logo_url?: string | null
-          currency_code?: string | null
-          language_code?: string | null
-          timezone?: string | null
           created_at?: string | null
+          currency_code?: string
+          id?: string
+          language_code?: string
+          logo_url?: string | null
+          name?: string
+          timezone?: string
           updated_at?: string | null
         }
         Relationships: []
