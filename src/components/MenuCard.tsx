@@ -14,6 +14,7 @@ interface MenuCardProps {
   name: string;
   description?: string;
   price: string; // Changed from number to string to accept formatted price
+  happyHourPrice?: string; // Optional discounted price during happy hours
   category: string;
   imageUrl?: string;
   available: boolean;
@@ -26,7 +27,8 @@ interface MenuCardProps {
 export const MenuCard = ({ 
   name, 
   description, 
-  price, 
+  price,
+  happyHourPrice, 
   category, 
   imageUrl, 
   available,
@@ -49,7 +51,16 @@ export const MenuCard = ({
       <CardContent className="p-4 md:p-6">
         <div className="flex justify-between items-start mb-3">
           <h3 className="text-lg md:text-xl font-bold text-white leading-tight">{name}</h3>
-          <span className="text-xl md:text-2xl font-bold text-cyan-400">{price}</span>
+          <div className="flex flex-col items-end">
+            {happyHourPrice ? (
+              <>
+                <span className="text-sm text-gray-400 line-through">{price}</span>
+                <span className="text-xl md:text-2xl font-bold text-purple-400">{happyHourPrice}</span>
+              </>
+            ) : (
+              <span className="text-xl md:text-2xl font-bold text-cyan-400">{price}</span>
+            )}
+          </div>
         </div>
         {description && (
           <p className="text-gray-300 mb-4 text-sm md:text-base leading-relaxed">{description}</p>
@@ -58,6 +69,11 @@ export const MenuCard = ({
           <Badge variant="secondary" className="text-xs md:text-sm bg-gray-800 text-cyan-300 border border-cyan-500/30 px-3 py-1">
             {category}
           </Badge>
+          {happyHourPrice && (
+            <Badge variant="secondary" className="text-xs md:text-sm bg-purple-900/50 text-purple-300 border border-purple-500/30 px-3 py-1 animate-pulse">
+              Happy Hour 15% OFF
+            </Badge>
+          )}
           {!available && (
             <Badge variant="destructive" className="text-xs md:text-sm px-3 py-1">
               Unavailable

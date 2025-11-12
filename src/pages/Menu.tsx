@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { MenuCard } from "@/components/MenuCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Search, Sparkles, ChefHat, Leaf } from "lucide-react";
+import { Loader2, Search, Sparkles, ChefHat, Leaf, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { formatCurrency } from "@/lib/currency";
@@ -66,9 +66,27 @@ const Menu = () => {
   const [categories, setCategories] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("drinks");
+  const [isHappyHour, setIsHappyHour] = useState(false);
   
   // Filter active offers
   const activeOffers = offers.filter(offer => offer.is_active);
+  
+  // Check if current time is within happy hours (14:00 - 18:00)
+  const checkHappyHour = () => {
+    const now = new Date();
+    const hours = now.getHours();
+    return hours >= 14 && hours < 18;
+  };
+  
+  // Update happy hour status every minute
+  useEffect(() => {
+    setIsHappyHour(checkHappyHour());
+    const interval = setInterval(() => {
+      setIsHappyHour(checkHappyHour());
+    }, 60000); // Check every minute
+    
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     Promise.all([fetchMenuItems(), fetchOffers(), fetchRestaurantSettings()]);
@@ -212,6 +230,11 @@ const Menu = () => {
     const locale = localeMap[languageCode] || 'en-US';
     return formatCurrency(price, currencyCode, locale);
   };
+  
+  // Calculate happy hour price (15% discount)
+  const getHappyHourPrice = (originalPrice: number) => {
+    return originalPrice * 0.85; // 15% discount
+  };
 
   // Filter menu items based on search query
   const getFilteredMenuItems = () => {
@@ -282,6 +305,7 @@ const Menu = () => {
               name={item.name}
               description={item.description || undefined}
               price={formatPrice(item.price)}
+              happyHourPrice={isHappyHour ? formatPrice(getHappyHourPrice(item.price)) : undefined}
               category={item.category}
               imageUrl={item.image_url || undefined}
               available={item.available}
@@ -316,13 +340,14 @@ const Menu = () => {
           {drinkCategories.map(category => (
             <div key={category}>
               <h3 className="text-2xl font-bold mb-6 capitalize">{category}</h3>
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {groupedItems.regular[category]?.map((item) => (
                   <MenuCard 
                     key={item.id} 
                     name={item.name}
                     description={item.description || undefined}
                     price={formatPrice(item.price)}
+                    happyHourPrice={isHappyHour ? formatPrice(getHappyHourPrice(item.price)) : undefined}
                     category={item.category}
                     imageUrl={item.image_url || undefined}
                     available={item.available}
@@ -366,6 +391,7 @@ const Menu = () => {
                     name={item.name}
                     description={item.description || undefined}
                     price={formatPrice(item.price)}
+                    happyHourPrice={isHappyHour ? formatPrice(getHappyHourPrice(item.price)) : undefined}
                     category={item.category}
                     imageUrl={item.image_url || undefined}
                     available={item.available}
@@ -405,6 +431,7 @@ const Menu = () => {
                   name={item.name}
                   description={item.description || undefined}
                   price={formatPrice(item.price)}
+                  happyHourPrice={isHappyHour ? formatPrice(getHappyHourPrice(item.price)) : undefined}
                   category={item.category}
                   imageUrl={item.image_url || undefined}
                   available={item.available}
@@ -452,6 +479,26 @@ const Menu = () => {
           </h1>
           <p className="text-xl text-muted-foreground">{t('menu.subtitle')}</p>
         </div>
+
+        {/* Happy Hours Banner */}
+        {isHappyHour && (
+          <div className="mb-8 animate-fade-in">
+            <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/40 rounded-2xl p-6 backdrop-blur-sm animate-pulse">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Clock className="h-8 w-8 text-purple-400" />
+                  <div>
+                    <h2 className="text-3xl font-bold text-purple-300">Happy Hours Active! 🎉</h2>
+                    <p className="text-purple-200 text-lg mt-1">Enjoy 15% OFF on all items (2:00 PM - 6:00 PM)</p>
+                  </div>
+                </div>
+                <Badge variant="secondary" className="bg-purple-500 text-white px-4 py-2 text-lg">
+                  15% OFF
+                </Badge>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Active Offers Banner */}
         {activeOffers.length > 0 && (
@@ -525,6 +572,7 @@ const Menu = () => {
                   name={item.name}
                   description={item.description || undefined}
                   price={formatPrice(item.price)}
+                  happyHourPrice={isHappyHour ? formatPrice(getHappyHourPrice(item.price)) : undefined}
                   category={item.category}
                   imageUrl={item.image_url || undefined}
                   available={item.available}
@@ -551,6 +599,7 @@ const Menu = () => {
                   name={item.name}
                   description={item.description || undefined}
                   price={formatPrice(item.price)}
+                  happyHourPrice={isHappyHour ? formatPrice(getHappyHourPrice(item.price)) : undefined}
                   category={item.category}
                   imageUrl={item.image_url || undefined}
                   available={item.available}
