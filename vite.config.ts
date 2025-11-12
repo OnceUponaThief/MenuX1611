@@ -8,7 +8,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
-    port: 3000,
+    port: 8080,
   },
   plugins: [
     react(), 
@@ -25,7 +25,13 @@ export default defineConfig(({ mode }) => ({
         theme_color: '#00f0ff',
         background_color: '#000000',
         display: 'standalone',
-        icon: 'public/vite.svg',
+        icons: [
+          {
+            src: 'public/vite.svg',
+            sizes: '192x192',
+            type: 'image/svg+xml'
+          }
+        ],
         start_url: '/',
       },
       workbox: {

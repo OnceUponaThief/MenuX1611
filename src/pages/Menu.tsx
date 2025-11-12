@@ -564,17 +564,20 @@ const Menu = () => {
           </div>
         )}
 
-        {/* Category Tabs */}
+        {/* Category Tabs - FOOD and DRINKS only */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8 animate-fade-in">
-          <TabsList className="grid w-full grid-cols-3 bg-gray-800/50 border border-cyan-500/30">
-            <TabsTrigger value="drinks" className="data-[state=active]:bg-cyan-500 data-[state=active]:text-gray-900">
-              {t('menu.categories.drinks')}
+          <TabsList className="grid w-full grid-cols-2 bg-gray-800/50 border border-cyan-500/30 p-2">
+            <TabsTrigger 
+              value="drinks" 
+              className="text-2xl font-bold py-4 data-[state=active]:bg-cyan-500 data-[state=active]:text-gray-900 data-[state=inactive]:text-cyan-300"
+            >
+              DRINKS
             </TabsTrigger>
-            <TabsTrigger value="food" className="data-[state=active]:bg-cyan-500 data-[state=active]:text-gray-900">
-              {t('menu.categories.food')}
-            </TabsTrigger>
-            <TabsTrigger value="all" className="data-[state=active]:bg-cyan-500 data-[state=active]:text-gray-900">
-              {t('menu.categories.all')}
+            <TabsTrigger 
+              value="food" 
+              className="text-2xl font-bold py-4 data-[state=active]:bg-cyan-500 data-[state=active]:text-gray-900 data-[state=inactive]:text-cyan-300"
+            >
+              FOOD
             </TabsTrigger>
           </TabsList>
         </Tabs>
