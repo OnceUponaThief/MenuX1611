@@ -48,13 +48,7 @@ const Index = () => {
               View Menu
             </Button>
           </div>
-          {/* Animated demo placeholder */}
-          <div className="mt-10 mx-auto max-w-3xl rounded-xl border border-white/10 bg-black/30 p-4 shadow-[var(--brand-shadow)]">
-            <video className="w-full rounded-lg" autoPlay muted loop playsInline poster="/LIVE_Banner_TaglineRepeat_Fixed.jpg">
-              <source src="" type="video/mp4" />
-            </video>
-            <p className="text-xs text-white/60 mt-2">Demo placeholder — replace with product demo video or animation</p>
-          </div>
+          {/* Animated demo removed per request */}
         </div>
 
         {/* Social Proof */}
@@ -190,7 +184,7 @@ const Index = () => {
             <Card className="border-cyan-500/30 bg-black/40">
               <CardContent className="p-6">
                 <h3 className="text-2xl font-bold mb-2">STARTER</h3>
-                <p className="text-sm text-white/70 mb-4">$29/mo</p>
+                <p className="text-sm text-white/70 mb-4">₹2,499/mo</p>
                 <ul className="space-y-2 text-sm text-white/80">
                   <li>• 3 menus</li>
                   <li>• Unlimited scans</li>
@@ -203,7 +197,7 @@ const Index = () => {
             <Card className="border-violet-500/30 bg-black/40">
               <CardContent className="p-6">
                 <h3 className="text-2xl font-bold mb-2">PRO</h3>
-                <p className="text-sm text-white/70 mb-4">$79/mo</p>
+                <p className="text-sm text-white/70 mb-4">₹6,499/mo</p>
                 <ul className="space-y-2 text-sm text-white/80">
                   <li>• All features</li>
                   <li>• Analytics</li>
