@@ -107,9 +107,9 @@ export const MenuCard = ({
         {/* Dietary Preferences */}
         {dietary_preferences && dietary_preferences.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-3">
-            {dietary_preferences.map((preference) => (
+            {dietary_preferences.map((preference, index) => (
               <Badge 
-                key={preference}
+                key={`${preference}-${index}`}
                 variant="outline" 
                 className="text-xs bg-blue-900/30 text-blue-300 border border-blue-500/30 px-2 py-0.5"
               >
