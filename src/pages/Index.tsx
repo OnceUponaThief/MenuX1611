@@ -1,20 +1,68 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { QrCode, Settings, Eye } from "lucide-react";
+import { QrCode, Settings, Eye, BarChart3, ShieldCheck, Zap, Store, Globe, Star } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { ReviewCard } from "@/components/ReviewCard";
+
+interface Review {
+  id: string;
+  customer_name: string;
+  rating: number;
+  review_text?: string | null;
+  photo_urls?: string[] | null;
+  admin_reply?: string | null;
+  admin_reply_at?: string | null;
+  created_at: string;
+}
 
 const Index = () => {
   const navigate = useNavigate();
+  const [reviews, setReviews] = useState<Review[]>([]);
+
+  useEffect(() => {
+    const fetchApprovedReviews = async () => {
+      const { data } = await supabase
+        .from("reviews")
+        .select("id, customer_name, rating, review_text, photo_urls, admin_reply, admin_reply_at, created_at")
+        .eq("is_approved", true)
+        .order("created_at", { ascending: false })
+        .limit(6);
+      setReviews(data || []);
+    };
+    fetchApprovedReviews();
+  }, []);
 
   return (
-    <div className="min-h-screen py-12 px-4">
+    <div className="min-h-screen py-12 px-4 bg-gradient-to-br from-gray-900 to-black text-white">
       <div className="max-w-6xl mx-auto">
+        {/* Hero Section */}
         <div className="text-center mb-16 animate-fade-in">
-          <h1 className="text-6xl font-bold mb-4 text-gradient">Scan to View Menu</h1>
-          <p className="text-muted-foreground text-xl mb-8">
-            Digital menu system for modern bars and restaurants
-          </p>
+          <h1 className="text-5xl md:text-6xl font-extrabold mb-4 brand-gradient-text">QRPour — Modern SaaS QR Menus</h1>
+          <p className="text-white/80 text-lg md:text-xl mb-8">Launch digital menus in minutes. Engage customers. Get insights.</p>
+          <div className="flex items-center justify-center gap-4">
+            <Button size="lg" className="bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 text-gray-900" onClick={() => navigate("/admin/login")}>Start Free Trial</Button>
+            <Button size="lg" variant="outline" onClick={() => navigate("/menu")}>
+              View Menu
+            </Button>
+          </div>
+          {/* Animated demo placeholder */}
+          <div className="mt-10 mx-auto max-w-3xl rounded-xl border border-white/10 bg-black/30 p-4 shadow-[var(--brand-shadow)]">
+            <video className="w-full rounded-lg" autoPlay muted loop playsInline poster="/LIVE_Banner_TaglineRepeat_Fixed.jpg">
+              <source src="" type="video/mp4" />
+            </video>
+            <p className="text-xs text-white/60 mt-2">Demo placeholder — replace with product demo video or animation</p>
+          </div>
+        </div>
+
+        {/* Social Proof */}
+        <div className="mb-10 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full px-4 py-2 bg-white/5 border border-white/10">
+            <Star className="w-4 h-4 text-yellow-400" />
+            <span className="text-white/80">Trusted by 1,000+ restaurants across India</span>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 mb-12">
@@ -101,6 +149,126 @@ const Index = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Feature Grid */}
+        <div className="mt-12 grid md:grid-cols-3 gap-6">
+          {[
+            { icon: <Zap className="w-6 h-6 text-cyan-400" />, title: "Instant Setup", desc: "Create menus and QR codes in minutes" },
+            { icon: <ShieldCheck className="w-6 h-6 text-pink-400" />, title: "Secure & Reliable", desc: "Built on Supabase with RLS" },
+            { icon: <BarChart3 className="w-6 h-6 text-violet-400" />, title: "Analytics", desc: "Track scans, engagement, and top items" },
+            { icon: <Store className="w-6 h-6 text-cyan-400" />, title: "Multi-Location", desc: "Manage menus across outlets" },
+            { icon: <Globe className="w-6 h-6 text-pink-400" />, title: "Multi-language", desc: "Serve customers in their language" },
+            { icon: <QrCode className="w-6 h-6 text-violet-400" />, title: "Beautiful QR", desc: "Brand-safe QR codes and landing" },
+          ].map((f, i) => (
+            <Card key={i} className="border-white/10 bg-black/30">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-2">{f.icon}<h3 className="font-bold">{f.title}</h3></div>
+                <p className="text-white/70 text-sm">{f.desc}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Pricing Section */}
+        <div className="mt-16">
+          <h2 className="text-4xl font-extrabold text-center brand-gradient-text mb-8">Pricing</h2>
+          <div className="grid md:grid-cols-4 gap-6">
+            {/* FREE */}
+            <Card className="border-white/10 bg-black/40">
+              <CardContent className="p-6">
+                <h3 className="text-2xl font-bold mb-2">FREE</h3>
+                <p className="text-sm text-white/70 mb-4">Best for trying QRPour</p>
+                <ul className="space-y-2 text-sm text-white/80">
+                  <li>• 1 menu</li>
+                  <li>• 50 scans/month</li>
+                  <li>• QRPour branding</li>
+                </ul>
+                <Button className="mt-6 w-full" variant="outline" onClick={() => navigate("/admin/login")}>Start Free</Button>
+              </CardContent>
+            </Card>
+            {/* STARTER */}
+            <Card className="border-cyan-500/30 bg-black/40">
+              <CardContent className="p-6">
+                <h3 className="text-2xl font-bold mb-2">STARTER</h3>
+                <p className="text-sm text-white/70 mb-4">$29/mo</p>
+                <ul className="space-y-2 text-sm text-white/80">
+                  <li>• 3 menus</li>
+                  <li>• Unlimited scans</li>
+                  <li>• Remove branding</li>
+                </ul>
+                <Button className="mt-6 w-full bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 text-gray-900" onClick={() => navigate("/admin/login")}>Start Starter</Button>
+              </CardContent>
+            </Card>
+            {/* PRO */}
+            <Card className="border-violet-500/30 bg-black/40">
+              <CardContent className="p-6">
+                <h3 className="text-2xl font-bold mb-2">PRO</h3>
+                <p className="text-sm text-white/70 mb-4">$79/mo</p>
+                <ul className="space-y-2 text-sm text-white/80">
+                  <li>• All features</li>
+                  <li>• Analytics</li>
+                  <li>• Multi-location</li>
+                </ul>
+                <Button className="mt-6 w-full" onClick={() => navigate("/admin/login")}>Start Pro</Button>
+              </CardContent>
+            </Card>
+            {/* ENTERPRISE */}
+            <Card className="border-pink-500/30 bg-black/40">
+              <CardContent className="p-6">
+                <h3 className="text-2xl font-bold mb-2">ENTERPRISE</h3>
+                <p className="text-sm text-white/70 mb-4">Custom</p>
+                <ul className="space-y-2 text-sm text-white/80">
+                  <li>• White-label</li>
+                  <li>• API access</li>
+                  <li>• Priority support</li>
+                </ul>
+                <Button className="mt-6 w-full" variant="outline" onClick={() => window.open("https://www.thelive.bar/", "_blank")}>Contact Sales</Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Testimonials */}
+        <div className="mt-16">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-3xl font-bold brand-gradient-text">Testimonials</h2>
+            <Button variant="outline" onClick={() => navigate("/menu")}>See Menu</Button>
+          </div>
+          {reviews.length === 0 ? (
+            <p className="text-white/70">No approved reviews yet.</p>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {reviews.map(r => (
+                <ReviewCard
+                  key={r.id}
+                  customerName={r.customer_name}
+                  rating={r.rating}
+                  reviewText={r.review_text || undefined}
+                  photoUrls={r.photo_urls || undefined}
+                  adminReply={r.admin_reply || undefined}
+                  adminReplyAt={r.admin_reply_at || undefined}
+                  createdAt={r.created_at}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <footer className="mt-16 border-t border-white/10 pt-8">
+          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm text-white/80">
+            <a href="https://www.thelive.bar/privacy" target="_blank" rel="noopener noreferrer">Privacy</a>
+            <a href="https://www.thelive.bar/terms" target="_blank" rel="noopener noreferrer">Terms</a>
+            <a href="https://www.thelive.bar/blog" target="_blank" rel="noopener noreferrer">Blog</a>
+            <a href="https://www.thelive.bar/help" target="_blank" rel="noopener noreferrer">Help Center</a>
+          </div>
+          <div className="mt-4 flex items-center gap-3 text-white/70">
+            <span>Follow:</span>
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-white">Twitter</a>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-white">Instagram</a>
+            <a href="https://www.thelive.bar/" target="_blank" rel="noopener noreferrer" className="hover:text-white">Website</a>
+          </div>
+        </footer>
       </div>
     </div>
   );
