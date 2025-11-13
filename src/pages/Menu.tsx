@@ -92,6 +92,10 @@ const CATEGORY_GROUPS = {
     "brandy",
     "tequila",
     "liqueur",
+    "liqueurs",
+    "shots",
+    "breezers",
+    "imfl",
   ],
   food: ["food", "appetizers", "soup", "main course", "rice", "noodles", "dal", "bread", "desserts"],
 };
@@ -110,6 +114,9 @@ const DRINK_TYPE_FILTERS: Record<string, string[]> = {
   brandy: ["brandy"],
   tequila: ["tequila"],
   liqueur: ["liqueur", "liqueurs"],
+  imfl: ["imfl"],
+  shots: ["shots", "shot"],
+  breezers: ["breezers", "breezer"],
   shakes: ["shake", "shakes", "milkshake", "milkshakes"],
 };
 
@@ -789,45 +796,7 @@ const Menu = () => {
             </div>
           )}
 
-          {/* AI-generated sample reviews (non-customer, demo only) */}
-          <div className="mt-10">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-cyan-300">🔒</span>
-              <h3 className="text-xl font-semibold">Sample Reviews (AI-generated)</h3>
-            </div>
-            <p className="text-sm text-gray-400 mb-4">The following reviews are generated for demo purposes only and do not represent real customer feedback.</p>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {[
-                {
-                  name: "Aarav Sharma",
-                  rating: 5,
-                  text: "Loved the signature cocktail — balanced, aromatic, and perfectly chilled.",
-                  avatar: "/dicebear/7.x/initials/png?seed=Aarav%20Sharma&backgroundType=gradient&radius=50",
-                },
-                {
-                  name: "Ananya Iyer",
-                  rating: 4,
-                  text: "The appetizers were crisp and flavorful. Great value during happy hours!",
-                  avatar: "/dicebear/7.x/initials/png?seed=Ananya%20Iyer&backgroundType=gradient&radius=50",
-                },
-                {
-                  name: "Rohit Verma",
-                  rating: 5,
-                  text: "Fast service and a clean digital menu. Multi-language support was handy.",
-                  avatar: "/dicebear/7.x/initials/png?seed=Rohit%20Verma&backgroundType=gradient&radius=50",
-                },
-              ].map((s, idx) => (
-                <ReviewCard
-                  key={`ai-sample-${idx}`}
-                  customerName={s.name}
-                  rating={s.rating}
-                  reviewText={s.text}
-                  createdAt={new Date().toISOString()}
-                  avatarUrl={s.avatar}
-                />
-              ))}
-            </div>
-          </div>
+          {/* AI-generated sample reviews removed per request */}
         </div>
       </div>
 

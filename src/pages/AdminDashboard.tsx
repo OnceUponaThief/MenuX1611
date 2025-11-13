@@ -264,7 +264,26 @@ const AdminDashboard = () => {
 
   // Define category groups (same as Menu.tsx)
   const CATEGORY_GROUPS = {
-    drinks: ["drinks", "cocktails", "mocktails", "shake", "shakes", "beer", "wine", "whiskey", "vodka", "gin", "rum", "brandy"],
+    drinks: [
+      "drinks",
+      "cocktails",
+      "mocktails",
+      "shake",
+      "shakes",
+      "beer",
+      "wine",
+      "whiskey",
+      "vodka",
+      "gin",
+      "rum",
+      "brandy",
+      "tequila",
+      "liqueur",
+      "liqueurs",
+      "shots",
+      "breezers",
+      "imfl",
+    ],
     food: ["food", "appetizers", "soup", "main course", "rice", "noodles", "dal", "bread", "desserts"],
   };
 
@@ -1241,6 +1260,12 @@ const AdminDashboard = () => {
                             <SelectItem value="drinks">Drinks</SelectItem>
                             <SelectItem value="cocktails">Cocktails</SelectItem>
                             <SelectItem value="mocktails">Mocktails</SelectItem>
+                            <SelectItem value="imfl">IMFL</SelectItem>
+                            <SelectItem value="shots">Shots</SelectItem>
+                            <SelectItem value="breezers">Breezers</SelectItem>
+                            <SelectItem value="beer">Beer</SelectItem>
+                            <SelectItem value="wine">Wine</SelectItem>
+                            <SelectItem value="liqueurs">Liqueurs</SelectItem>
                             <SelectItem value="shakes">Shakes</SelectItem>
                             <SelectItem value="food">Food</SelectItem>
                             <SelectItem value="appetizers">Appetizers</SelectItem>
