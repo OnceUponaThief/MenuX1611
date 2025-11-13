@@ -40,7 +40,7 @@ const Index = () => {
       <div className="max-w-6xl mx-auto">
         {/* Hero Section */}
         <div className="text-center mb-16 animate-fade-in">
-          <h1 className="text-5xl md:text-6xl font-extrabold mb-4 brand-gradient-text">LIVE QR — Modern SaaS QR Menus</h1>
+          <h1 className="text-5xl md:text-6xl font-extrabold mb-4 brand-gradient-text">MenuX — Modern QR Menus</h1>
           <p className="text-white/80 text-lg md:text-xl mb-8">Launch digital menus in minutes. Engage customers. Get insights.</p>
           <div className="flex items-center justify-center gap-4">
             <Button size="lg" className="bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 text-gray-900" onClick={() => navigate("/admin/login")}>Start Free Trial</Button>
@@ -132,15 +132,7 @@ const Index = () => {
                 </p>
               </div>
             </div>
-            <div className="mt-8 p-6 bg-secondary rounded-lg">
-              <h3 className="font-bold mb-2">Menu URL</h3>
-              <code className="text-sm text-primary break-all">
-                {window.location.origin}/menu
-              </code>
-              <p className="text-xs text-muted-foreground mt-2">
-                This URL is embedded in the QR code above
-              </p>
-            </div>
+            {/* Menu URL display removed per request */}
           </CardContent>
         </Card>
 
