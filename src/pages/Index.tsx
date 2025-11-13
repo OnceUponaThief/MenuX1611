@@ -40,7 +40,7 @@ const Index = () => {
       <div className="max-w-6xl mx-auto">
         {/* Hero Section */}
         <div className="text-center mb-16 animate-fade-in">
-          <h1 className="text-5xl md:text-6xl font-extrabold mb-4 brand-gradient-text">QRPour — Modern SaaS QR Menus</h1>
+          <h1 className="text-5xl md:text-6xl font-extrabold mb-4 brand-gradient-text">LIVE QR — Modern SaaS QR Menus</h1>
           <p className="text-white/80 text-lg md:text-xl mb-8">Launch digital menus in minutes. Engage customers. Get insights.</p>
           <div className="flex items-center justify-center gap-4">
             <Button size="lg" className="bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 text-gray-900" onClick={() => navigate("/admin/login")}>Start Free Trial</Button>
@@ -167,56 +167,56 @@ const Index = () => {
         <div className="mt-16">
           <h2 className="text-4xl font-extrabold text-center brand-gradient-text mb-8">Pricing</h2>
           <div className="grid md:grid-cols-4 gap-6">
-            {/* FREE */}
+            {/* FREEMIUM */}
             <Card className="border-white/10 bg-black/40">
               <CardContent className="p-6">
-                <h3 className="text-2xl font-bold mb-2">FREE</h3>
-                <p className="text-sm text-white/70 mb-4">Best for trying QRPour</p>
+                <h3 className="text-2xl font-bold mb-2">FREEMIUM</h3>
+                <p className="text-sm text-white/70 mb-4">Best for getting started</p>
                 <ul className="space-y-2 text-sm text-white/80">
                   <li>• 1 menu</li>
                   <li>• 50 scans/month</li>
-                  <li>• QRPour branding</li>
+                  <li>• Branding enabled</li>
                 </ul>
                 <Button className="mt-6 w-full" variant="outline" onClick={() => navigate("/admin/login")}>Start Free</Button>
               </CardContent>
             </Card>
-            {/* STARTER */}
+            {/* STARTER ₹99/mo */}
             <Card className="border-cyan-500/30 bg-black/40">
               <CardContent className="p-6">
                 <h3 className="text-2xl font-bold mb-2">STARTER</h3>
-                <p className="text-sm text-white/70 mb-4">₹2,499/mo</p>
+                <p className="text-sm text-white/70 mb-4">₹99/mo</p>
                 <ul className="space-y-2 text-sm text-white/80">
                   <li>• 3 menus</li>
                   <li>• Unlimited scans</li>
                   <li>• Remove branding</li>
                 </ul>
-                <Button className="mt-6 w-full bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 text-gray-900" onClick={() => navigate("/admin/login")}>Start Starter</Button>
+                <Button className="mt-6 w-full bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 text-gray-900" onClick={() => navigate("/admin/login")}>Choose Starter</Button>
               </CardContent>
             </Card>
-            {/* PRO */}
+            {/* GRAND ₹299/mo */}
             <Card className="border-violet-500/30 bg-black/40">
               <CardContent className="p-6">
-                <h3 className="text-2xl font-bold mb-2">PRO</h3>
-                <p className="text-sm text-white/70 mb-4">₹6,499/mo</p>
+                <h3 className="text-2xl font-bold mb-2">GRAND</h3>
+                <p className="text-sm text-white/70 mb-4">₹299/mo</p>
                 <ul className="space-y-2 text-sm text-white/80">
                   <li>• All features</li>
                   <li>• Analytics</li>
                   <li>• Multi-location</li>
                 </ul>
-                <Button className="mt-6 w-full" onClick={() => navigate("/admin/login")}>Start Pro</Button>
+                <Button className="mt-6 w-full" onClick={() => navigate("/admin/login")}>Choose Grand</Button>
               </CardContent>
             </Card>
-            {/* ENTERPRISE */}
+            {/* PRO ₹599/mo */}
             <Card className="border-pink-500/30 bg-black/40">
               <CardContent className="p-6">
-                <h3 className="text-2xl font-bold mb-2">ENTERPRISE</h3>
-                <p className="text-sm text-white/70 mb-4">Custom</p>
+                <h3 className="text-2xl font-bold mb-2">PRO</h3>
+                <p className="text-sm text-white/70 mb-4">₹599/mo</p>
                 <ul className="space-y-2 text-sm text-white/80">
                   <li>• White-label</li>
                   <li>• API access</li>
                   <li>• Priority support</li>
                 </ul>
-                <Button className="mt-6 w-full" variant="outline" onClick={() => window.open("https://www.thelive.bar/", "_blank")}>Contact Sales</Button>
+                <Button className="mt-6 w-full" variant="outline" onClick={() => navigate("/admin/login")}>Choose Pro</Button>
               </CardContent>
             </Card>
           </div>
