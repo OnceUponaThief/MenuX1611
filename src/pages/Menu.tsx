@@ -110,7 +110,15 @@ const Menu = () => {
       if (error) throw error;
 
       if (data) {
-        setMenuItems(data);
+        // Cast modifiers and dietary_preferences from Json to proper types
+        const itemsWithModifiers = data.map(item => ({
+          ...item,
+          modifiers: (item.modifiers as unknown as Modifier[]) || [],
+          dietary_preferences: (item.dietary_preferences as unknown as string[]) || [],
+          seasonal: item.seasonal || false,
+          chef_special: item.chef_special || false
+        }));
+        setMenuItems(itemsWithModifiers);
         const uniqueCategories = Array.from(new Set(data.map((item) => item.category)));
         setCategories(uniqueCategories);
       }
@@ -306,6 +314,7 @@ const Menu = () => {
               description={item.description || undefined}
               price={formatPrice(item.price)}
               happyHourPrice={isHappyHour ? formatPrice(getHappyHourPrice(item.price)) : undefined}
+              isHappyHour={isHappyHour}
               category={item.category}
               imageUrl={item.image_url || undefined}
               available={item.available}
@@ -348,6 +357,7 @@ const Menu = () => {
                     description={item.description || undefined}
                     price={formatPrice(item.price)}
                     happyHourPrice={isHappyHour ? formatPrice(getHappyHourPrice(item.price)) : undefined}
+                    isHappyHour={isHappyHour}
                     category={item.category}
                     imageUrl={item.image_url || undefined}
                     available={item.available}
@@ -392,6 +402,7 @@ const Menu = () => {
                     description={item.description || undefined}
                     price={formatPrice(item.price)}
                     happyHourPrice={isHappyHour ? formatPrice(getHappyHourPrice(item.price)) : undefined}
+                    isHappyHour={isHappyHour}
                     category={item.category}
                     imageUrl={item.image_url || undefined}
                     available={item.available}
@@ -432,6 +443,7 @@ const Menu = () => {
                   description={item.description || undefined}
                   price={formatPrice(item.price)}
                   happyHourPrice={isHappyHour ? formatPrice(getHappyHourPrice(item.price)) : undefined}
+                  isHappyHour={isHappyHour}
                   category={item.category}
                   imageUrl={item.image_url || undefined}
                   available={item.available}

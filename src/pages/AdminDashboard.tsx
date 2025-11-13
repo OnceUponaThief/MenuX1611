@@ -185,7 +185,17 @@ const AdminDashboard = () => {
         .order("name", { ascending: true });
 
       if (error) throw error;
-      if (data) setMenuItems(data);
+      if (data) {
+        // Cast modifiers from Json to Modifier[]
+        const itemsWithModifiers = data.map(item => ({
+          ...item,
+          modifiers: (item.modifiers as unknown as Modifier[]) || [],
+          dietary_preferences: (item.dietary_preferences as unknown as string[]) || [],
+          seasonal: item.seasonal || false,
+          chef_special: item.chef_special || false
+        }));
+        setMenuItems(itemsWithModifiers);
+      }
     } catch (error) {
       console.error("Error fetching menu items:", error);
       toast.error("Failed to load menu items");
@@ -306,8 +316,8 @@ const AdminDashboard = () => {
         category: formData.category,
         image_url: formData.image_url || null,
         available: formData.available,
-        modifiers: formData.modifiers,
-        dietary_preferences: formData.dietary_preferences,
+        modifiers: formData.modifiers as any,
+        dietary_preferences: formData.dietary_preferences as any,
         seasonal: formData.seasonal,
         chef_special: formData.chef_special,
       };

@@ -18,34 +18,46 @@ export type Database = {
         Row: {
           available: boolean | null
           category: string
+          chef_special: boolean | null
           created_at: string | null
           description: string | null
+          dietary_preferences: Json | null
           id: string
           image_url: string | null
+          modifiers: Json | null
           name: string
           price: number
+          seasonal: boolean | null
           updated_at: string | null
         }
         Insert: {
           available?: boolean | null
           category: string
+          chef_special?: boolean | null
           created_at?: string | null
           description?: string | null
+          dietary_preferences?: Json | null
           id?: string
           image_url?: string | null
+          modifiers?: Json | null
           name: string
           price: number
+          seasonal?: boolean | null
           updated_at?: string | null
         }
         Update: {
           available?: boolean | null
           category?: string
+          chef_special?: boolean | null
           created_at?: string | null
           description?: string | null
+          dietary_preferences?: Json | null
           id?: string
           image_url?: string | null
+          modifiers?: Json | null
           name?: string
           price?: number
+          seasonal?: boolean | null
           updated_at?: string | null
         }
         Relationships: []

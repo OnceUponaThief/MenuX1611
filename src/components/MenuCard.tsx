@@ -15,6 +15,7 @@ interface MenuCardProps {
   description?: string;
   price: string; // Changed from number to string to accept formatted price
   happyHourPrice?: string; // Optional discounted price during happy hours
+  isHappyHour?: boolean; // Flag to indicate if happy hour is active
   category: string;
   imageUrl?: string;
   available: boolean;
@@ -28,7 +29,8 @@ export const MenuCard = ({
   name, 
   description, 
   price,
-  happyHourPrice, 
+  happyHourPrice,
+  isHappyHour = false,
   category, 
   imageUrl, 
   available,
@@ -37,6 +39,12 @@ export const MenuCard = ({
   seasonal,
   chef_special
 }: MenuCardProps) => {
+  
+  // Calculate happy hour price for modifiers (15% discount)
+  const getHappyHourModifierPrice = (originalPrice: number) => {
+    return isHappyHour ? (originalPrice * 0.85).toFixed(0) : originalPrice.toFixed(0);
+  };
+  
   return (
     <Card className="overflow-hidden bg-black border border-cyan-500/30 rounded-xl shadow-lg hover:shadow-cyan-500/20 transition-all duration-300 touch-manipulation">
       {imageUrl && (
@@ -108,25 +116,27 @@ export const MenuCard = ({
           </div>
         )}
         
-        {/* Modifiers Preview */}
+        {/* Volume/Size Options */}
         {modifiers && modifiers.length > 0 && (
           <div className="mt-3 pt-3 border-t border-gray-700">
-            <p className="text-xs text-gray-400 mb-1">Customizations available</p>
-            <div className="flex flex-wrap gap-1">
-              {modifiers.slice(0, 3).map((modifier) => (
-                <Badge 
+            <p className="text-xs text-gray-400 mb-2">Available Sizes</p>
+            <div className="grid grid-cols-3 gap-2">
+              {modifiers.map((modifier) => (
+                <div 
                   key={modifier.id} 
-                  variant="outline" 
-                  className="text-xs bg-gray-700 text-gray-300 border border-gray-600 px-2 py-0.5"
+                  className="bg-gray-800/50 border border-cyan-500/30 rounded-lg p-2 text-center hover:border-cyan-500/60 transition-colors"
                 >
-                  +₹{modifier.price.toFixed(2)}
-                </Badge>
+                  <p className="text-xs font-semibold text-cyan-300">{modifier.name}</p>
+                  {isHappyHour ? (
+                    <div className="mt-1">
+                      <p className="text-xs text-gray-400 line-through">₹{modifier.price}</p>
+                      <p className="text-sm font-bold text-purple-400">₹{getHappyHourModifierPrice(modifier.price)}</p>
+                    </div>
+                  ) : (
+                    <p className="text-sm font-bold text-white mt-1">₹{modifier.price}</p>
+                  )}
+                </div>
               ))}
-              {modifiers.length > 3 && (
-                <Badge variant="outline" className="text-xs bg-gray-700 text-gray-300 border border-gray-600 px-2 py-0.5">
-                  +{modifiers.length - 3} more
-                </Badge>
-              )}
             </div>
           </div>
         )}
