@@ -9,6 +9,14 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      // Proxy Dicebear API to avoid browser ORB/CORS issues by serving via same-origin
+      "/dicebear": {
+        target: "https://api.dicebear.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/dicebear/, ""),
+      },
+    },
   },
   plugins: [
     react(), 

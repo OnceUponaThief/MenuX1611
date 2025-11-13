@@ -71,8 +71,46 @@ interface Review {
 
 // Define category groups for better organization
 const CATEGORY_GROUPS = {
-  drinks: ["drinks", "cocktails", "beer", "wine", "whiskey", "vodka", "gin", "rum", "brandy"],
+  drinks: [
+    "drinks",
+    "cocktail",
+    "cocktails",
+    "mocktail",
+    "mocktails",
+    "non-alcoholic",
+    "shake",
+    "shakes",
+    "milkshake",
+    "milkshakes",
+    "beer",
+    "wine",
+    "whiskey",
+    "whisky",
+    "vodka",
+    "gin",
+    "rum",
+    "brandy",
+    "tequila",
+    "liqueur",
+  ],
   food: ["food", "appetizers", "soup", "main course", "rice", "noodles", "dal", "bread", "desserts"],
+};
+
+// Drink type filters to allow quick access to sub-categories like Cocktail, Mocktail, etc.
+const DRINK_TYPE_FILTERS: Record<string, string[]> = {
+  all: [],
+  cocktail: ["cocktail", "cocktails", "mixology"],
+  mocktail: ["mocktail", "mocktails", "non-alcoholic", "virgin"],
+  beer: ["beer", "beers", "draught", "lager", "ipa", "stout"],
+  wine: ["wine", "wines", "red wine", "white wine", "sparkling", "rose"],
+  whiskey: ["whiskey", "whisky", "scotch", "bourbon", "single malt"],
+  vodka: ["vodka"],
+  gin: ["gin"],
+  rum: ["rum"],
+  brandy: ["brandy"],
+  tequila: ["tequila"],
+  liqueur: ["liqueur", "liqueurs"],
+  shakes: ["shake", "shakes", "milkshake", "milkshakes"],
 };
 
 const Menu = () => {
@@ -84,6 +122,7 @@ const Menu = () => {
   const [categories, setCategories] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("drinks");
+  const [drinkFilter, setDrinkFilter] = useState<keyof typeof DRINK_TYPE_FILTERS>("all");
   const [isHappyHour, setIsHappyHour] = useState(false);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
@@ -372,6 +411,15 @@ const Menu = () => {
           cat.toLowerCase().includes(drinkCat) || cat.toLowerCase() === drinkCat
         )
       );
+
+      // Apply sub-filter by drink type
+      const drinkCategoriesFiltered = drinkFilter === "all"
+        ? drinkCategories
+        : drinkCategories.filter(cat => {
+            const lc = cat.toLowerCase();
+            const keywords = DRINK_TYPE_FILTERS[drinkFilter] || [];
+            return keywords.some(k => lc.includes(k) || lc === k);
+          });
       
       if (drinkCategories.length === 0) {
         return (
@@ -383,7 +431,24 @@ const Menu = () => {
       
       return (
         <div className="space-y-12">
-          {drinkCategories.map(category => (
+          {/* Sub-filter row for drink types */}
+          <div className="mb-4 flex gap-2 flex-wrap">
+            {Object.keys(DRINK_TYPE_FILTERS).map((type) => (
+              <Button
+                key={type}
+                variant={drinkFilter === type ? "default" : "ghost"}
+                className={
+                  drinkFilter === type
+                    ? "bg-gradient-to-r from-[hsl(var(--brand-from-hsl))] via-[hsl(var(--brand-via-hsl))] to-[hsl(var(--brand-to-hsl))] text-gray-900"
+                    : "text-cyan-300"
+                }
+                onClick={() => setDrinkFilter(type as keyof typeof DRINK_TYPE_FILTERS)}
+              >
+                {type === "all" ? "All" : type.charAt(0).toUpperCase() + type.slice(1)}
+              </Button>
+            ))}
+          </div>
+          {drinkCategoriesFiltered.map(category => (
             <div key={category}>
               <h3 className="text-2xl font-bold mb-6 capitalize">{category}</h3>
                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -737,19 +802,19 @@ const Menu = () => {
                   name: "Aarav Sharma",
                   rating: 5,
                   text: "Loved the signature cocktail — balanced, aromatic, and perfectly chilled.",
-                  avatar: "https://api.dicebear.com/7.x/initials/svg?seed=Aarav%20Sharma&backgroundType=gradient&radius=50",
+                  avatar: "/dicebear/7.x/initials/png?seed=Aarav%20Sharma&backgroundType=gradient&radius=50",
                 },
                 {
                   name: "Ananya Iyer",
                   rating: 4,
                   text: "The appetizers were crisp and flavorful. Great value during happy hours!",
-                  avatar: "https://api.dicebear.com/7.x/initials/svg?seed=Ananya%20Iyer&backgroundType=gradient&radius=50",
+                  avatar: "/dicebear/7.x/initials/png?seed=Ananya%20Iyer&backgroundType=gradient&radius=50",
                 },
                 {
                   name: "Rohit Verma",
                   rating: 5,
                   text: "Fast service and a clean digital menu. Multi-language support was handy.",
-                  avatar: "https://api.dicebear.com/7.x/initials/svg?seed=Rohit%20Verma&backgroundType=gradient&radius=50",
+                  avatar: "/dicebear/7.x/initials/png?seed=Rohit%20Verma&backgroundType=gradient&radius=50",
                 },
               ].map((s, idx) => (
                 <ReviewCard

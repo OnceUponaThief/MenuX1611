@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/dicebear/(.*)",
+      "destination": "https://api.dicebear.com/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
