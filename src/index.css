@@ -61,6 +61,13 @@ All colors MUST be HSL.
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-spring: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* Brand gradient inspired by logo (cyan → purple → pink) in HSL */
+    --brand-from-hsl: 189 84% 53%;
+    --brand-via-hsl: 258 89% 67%;
+    --brand-to-hsl: 353 95% 71%;
+    --brand-gradient: linear-gradient(90deg, hsl(var(--brand-from-hsl)), hsl(var(--brand-via-hsl)), hsl(var(--brand-to-hsl)));
+    --brand-shadow: 0 2px 20px hsla(189, 84%, 53%, 0.25);
   }
 }
 
@@ -81,6 +88,15 @@ All colors MUST be HSL.
 @layer utilities {
   .text-gradient {
     @apply bg-gradient-to-r from-primary via-blue-400 to-primary bg-clip-text text-transparent;
+    background-size: 200% auto;
+    animation: shimmer 3s linear infinite;
+  }
+  
+  .brand-gradient-text {
+    background: var(--brand-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
     background-size: 200% auto;
     animation: shimmer 3s linear infinite;
   }

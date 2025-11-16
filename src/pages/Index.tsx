@@ -1,20 +1,35 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { QrCode, Settings, Eye } from "lucide-react";
+import { QrCode, Settings, Eye, BarChart3, ShieldCheck, Zap, Store, Globe, Star } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen py-12 px-4">
+    <div className="min-h-screen py-12 px-4 bg-gradient-to-br from-gray-900 to-black text-white">
       <div className="max-w-6xl mx-auto">
+        {/* Hero Section */}
         <div className="text-center mb-16 animate-fade-in">
-          <h1 className="text-6xl font-bold mb-4 text-gradient">Scan to View Menu</h1>
-          <p className="text-muted-foreground text-xl mb-8">
-            Digital menu system for modern bars and restaurants
-          </p>
+          <h1 className="text-5xl md:text-6xl font-extrabold mb-4 brand-gradient-text">MenuX — Modern QR Menus</h1>
+          <p className="text-white/80 text-lg md:text-xl mb-8">Launch digital menus in minutes. Engage customers. Get insights.</p>
+          <div className="flex items-center justify-center gap-4">
+            <Button size="lg" className="bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 text-gray-900" onClick={() => navigate("/admin/login")}>Start Free Trial</Button>
+            <Button size="lg" variant="outline" onClick={() => navigate("/menu")}>
+              View Menu
+            </Button>
+          </div>
+          {/* Animated demo removed per request */}
+        </div>
+
+        {/* Social Proof */}
+        <div className="mb-10 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full px-4 py-2 bg-white/5 border border-white/10">
+            <Star className="w-4 h-4 text-yellow-400" />
+            <span className="text-white/80">Trusted by 1,000+ restaurants across India</span>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 mb-12">
@@ -90,17 +105,103 @@ const Index = () => {
                 </p>
               </div>
             </div>
-            <div className="mt-8 p-6 bg-secondary rounded-lg">
-              <h3 className="font-bold mb-2">Menu URL</h3>
-              <code className="text-sm text-primary break-all">
-                {window.location.origin}/menu
-              </code>
-              <p className="text-xs text-muted-foreground mt-2">
-                This URL is embedded in the QR code above
-              </p>
-            </div>
+            {/* Menu URL display removed per request */}
           </CardContent>
         </Card>
+
+        {/* Feature Grid */}
+        <div className="mt-12 grid md:grid-cols-3 gap-6">
+          {[
+            { icon: <Zap className="w-6 h-6 text-cyan-400" />, title: "Instant Setup", desc: "Create menus and QR codes in minutes" },
+            { icon: <ShieldCheck className="w-6 h-6 text-pink-400" />, title: "Secure & Reliable", desc: "Built on Supabase with RLS" },
+            { icon: <BarChart3 className="w-6 h-6 text-violet-400" />, title: "Analytics", desc: "Track scans, engagement, and top items" },
+            { icon: <Store className="w-6 h-6 text-cyan-400" />, title: "Multi-Location", desc: "Manage menus across outlets" },
+            { icon: <Globe className="w-6 h-6 text-pink-400" />, title: "Multi-language", desc: "Serve customers in their language" },
+            { icon: <QrCode className="w-6 h-6 text-violet-400" />, title: "Beautiful QR", desc: "Brand-safe QR codes and landing" },
+          ].map((f, i) => (
+            <Card key={i} className="border-white/10 bg-black/30">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-2">{f.icon}<h3 className="font-bold">{f.title}</h3></div>
+                <p className="text-white/70 text-sm">{f.desc}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Pricing Section */}
+        <div className="mt-16">
+          <h2 className="text-4xl font-extrabold text-center brand-gradient-text mb-8">Pricing</h2>
+          <div className="grid md:grid-cols-4 gap-6">
+            {/* FREEMIUM */}
+            <Card className="border-white/10 bg-black/40">
+              <CardContent className="p-6">
+                <h3 className="text-2xl font-bold mb-2">FREEMIUM</h3>
+                <p className="text-sm text-white/70 mb-4">Best for getting started</p>
+                <ul className="space-y-2 text-sm text-white/80">
+                  <li>• 1 menu</li>
+                  <li>• 50 scans/month</li>
+                  <li>• Branding enabled</li>
+                </ul>
+                <Button className="mt-6 w-full" variant="outline" onClick={() => navigate("/admin/login")}>Start Free</Button>
+              </CardContent>
+            </Card>
+            {/* STARTER ₹99/mo */}
+            <Card className="border-cyan-500/30 bg-black/40">
+              <CardContent className="p-6">
+                <h3 className="text-2xl font-bold mb-2">STARTER</h3>
+                <p className="text-sm text-white/70 mb-4">₹99/mo</p>
+                <ul className="space-y-2 text-sm text-white/80">
+                  <li>• 3 menus</li>
+                  <li>• Unlimited scans</li>
+                  <li>• Remove branding</li>
+                </ul>
+                <Button className="mt-6 w-full bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 text-gray-900" onClick={() => navigate("/admin/login")}>Choose Starter</Button>
+              </CardContent>
+            </Card>
+            {/* GRAND ₹299/mo */}
+            <Card className="border-violet-500/30 bg-black/40">
+              <CardContent className="p-6">
+                <h3 className="text-2xl font-bold mb-2">GRAND</h3>
+                <p className="text-sm text-white/70 mb-4">₹299/mo</p>
+                <ul className="space-y-2 text-sm text-white/80">
+                  <li>• All features</li>
+                  <li>• Analytics</li>
+                  <li>• Multi-location</li>
+                </ul>
+                <Button className="mt-6 w-full" onClick={() => navigate("/admin/login")}>Choose Grand</Button>
+              </CardContent>
+            </Card>
+            {/* PRO ₹599/mo */}
+            <Card className="border-pink-500/30 bg-black/40">
+              <CardContent className="p-6">
+                <h3 className="text-2xl font-bold mb-2">PRO</h3>
+                <p className="text-sm text-white/70 mb-4">₹599/mo</p>
+                <ul className="space-y-2 text-sm text-white/80">
+                  <li>• White-label</li>
+                  <li>• API access</li>
+                  <li>• Priority support</li>
+                </ul>
+                <Button className="mt-6 w-full" variant="outline" onClick={() => navigate("/admin/login")}>Choose Pro</Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <footer className="mt-16 border-t border-white/10 pt-8">
+          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm text-white/80">
+            <a href="https://www.thelive.bar/privacy" target="_blank" rel="noopener noreferrer">Privacy</a>
+            <a href="https://www.thelive.bar/terms" target="_blank" rel="noopener noreferrer">Terms</a>
+            <a href="https://www.thelive.bar/blog" target="_blank" rel="noopener noreferrer">Blog</a>
+            <a href="https://www.thelive.bar/help" target="_blank" rel="noopener noreferrer">Help Center</a>
+          </div>
+          <div className="mt-4 flex items-center gap-3 text-white/70">
+            <span>Follow:</span>
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-white">Twitter</a>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-white">Instagram</a>
+            <a href="https://www.thelive.bar/" target="_blank" rel="noopener noreferrer" className="hover:text-white">Website</a>
+          </div>
+        </footer>
       </div>
     </div>
   );

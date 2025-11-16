@@ -46,7 +46,7 @@ export const MenuCard = ({
   };
   
   return (
-    <Card className="overflow-hidden bg-black border border-cyan-500/30 rounded-xl shadow-lg hover:shadow-cyan-500/20 transition-all duration-300 touch-manipulation">
+    <Card className="overflow-hidden bg-black border border-cyan-500/30 rounded-xl shadow-lg hover:shadow-cyan-500/20 transition-all duration-300 touch-manipulation select-none active:scale-[0.99]">
       {imageUrl && (
         <div className="aspect-video w-full overflow-hidden bg-gray-900">
           <img 
@@ -59,16 +59,19 @@ export const MenuCard = ({
       <CardContent className="p-4 md:p-6">
         <div className="flex justify-between items-start mb-3">
           <h3 className="text-lg md:text-xl font-bold text-white leading-tight">{name}</h3>
-          <div className="flex flex-col items-end">
-            {happyHourPrice ? (
-              <>
-                <span className="text-sm text-gray-400 line-through">{price}</span>
-                <span className="text-xl md:text-2xl font-bold text-purple-400">{happyHourPrice}</span>
-              </>
-            ) : (
-              <span className="text-xl md:text-2xl font-bold text-cyan-400">{price}</span>
-            )}
-          </div>
+          {/* Hide the standalone price block when volume modifiers (e.g., 30ml/60ml/90ml) are present */}
+          {(!modifiers || modifiers.length === 0) && (
+            <div className="flex flex-col items-end">
+              {happyHourPrice ? (
+                <>
+                  <span className="text-sm text-gray-400 line-through">{price}</span>
+                  <span className="text-xl md:text-2xl font-bold text-purple-400">{happyHourPrice}</span>
+                </>
+              ) : (
+                <span className="text-xl md:text-2xl font-bold text-cyan-400">{price}</span>
+              )}
+            </div>
+          )}
         </div>
         {description && (
           <p className="text-gray-300 mb-4 text-sm md:text-base leading-relaxed">{description}</p>
@@ -106,7 +109,7 @@ export const MenuCard = ({
           <div className="flex flex-wrap gap-1 mb-3">
             {dietary_preferences.map((preference, index) => (
               <Badge 
-                key={index} 
+                key={`${preference}-${index}`}
                 variant="outline" 
                 className="text-xs bg-blue-900/30 text-blue-300 border border-blue-500/30 px-2 py-0.5"
               >
@@ -121,9 +124,9 @@ export const MenuCard = ({
           <div className="mt-3 pt-3 border-t border-gray-700">
             <p className="text-xs text-gray-400 mb-2">Available Sizes</p>
             <div className="grid grid-cols-3 gap-2">
-              {modifiers.map((modifier) => (
+              {modifiers.map((modifier, idx) => (
                 <div 
-                  key={modifier.id} 
+                  key={modifier.id || `${modifier.name}-${idx}`} 
                   className="bg-gray-800/50 border border-cyan-500/30 rounded-lg p-2 text-center hover:border-cyan-500/60 transition-colors"
                 >
                   <p className="text-xs font-semibold text-cyan-300">{modifier.name}</p>

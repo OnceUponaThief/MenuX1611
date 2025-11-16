@@ -7,6 +7,8 @@ import { Loader2, Search, Sparkles, ChefHat, Leaf, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { formatCurrency } from "@/lib/currency";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface MenuItem {
   id: string;
@@ -53,8 +55,53 @@ interface RestaurantSettings {
 
 // Define category groups for better organization
 const CATEGORY_GROUPS = {
-  drinks: ["drinks", "cocktails", "beer", "wine", "whiskey", "vodka", "gin", "rum", "brandy"],
+  drinks: [
+    "drinks",
+    "cocktail",
+    "cocktails",
+    "mocktail",
+    "mocktails",
+    "non-alcoholic",
+    "shake",
+    "shakes",
+    "milkshake",
+    "milkshakes",
+    "beer",
+    "wine",
+    "whiskey",
+    "whisky",
+    "vodka",
+    "gin",
+    "rum",
+    "brandy",
+    "tequila",
+    "liqueur",
+    "liqueurs",
+    "shots",
+    "breezers",
+    "imfl",
+  ],
   food: ["food", "appetizers", "soup", "main course", "rice", "noodles", "dal", "bread", "desserts"],
+};
+
+// Drink type filters to allow quick access to sub-categories like Cocktail, Mocktail, etc.
+const DRINK_TYPE_FILTERS: Record<string, string[]> = {
+  all: [],
+  cocktail: ["cocktail", "cocktails", "mixology"],
+  mocktail: ["mocktail", "mocktails", "non-alcoholic", "virgin"],
+  beer: ["beer", "beers", "draught", "lager", "ipa", "stout"],
+  wine: ["wine", "wines", "red wine", "white wine", "sparkling", "rose"],
+  whiskey: ["whiskey", "whisky", "scotch", "bourbon", "single malt"],
+  vodka: ["vodka"],
+  gin: ["gin"],
+  rum: ["rum"],
+  brandy: ["brandy"],
+  tequila: ["tequila"],
+  liqueur: ["liqueur", "liqueurs"],
+  imfl: ["imfl"],
+  shots: ["shots", "shot"],
+  breezers: ["breezers", "breezer"],
+  shakes: ["shake", "shakes", "milkshake", "milkshakes"],
 };
 
 const Menu = () => {
@@ -66,6 +113,7 @@ const Menu = () => {
   const [categories, setCategories] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("drinks");
+  const [drinkFilter, setDrinkFilter] = useState<keyof typeof DRINK_TYPE_FILTERS>("all");
   const [isHappyHour, setIsHappyHour] = useState(false);
   
   // Filter active offers
@@ -335,6 +383,15 @@ const Menu = () => {
           cat.toLowerCase().includes(drinkCat) || cat.toLowerCase() === drinkCat
         )
       );
+
+      // Apply sub-filter by drink type
+      const drinkCategoriesFiltered = drinkFilter === "all"
+        ? drinkCategories
+        : drinkCategories.filter(cat => {
+            const lc = cat.toLowerCase();
+            const keywords = DRINK_TYPE_FILTERS[drinkFilter] || [];
+            return keywords.some(k => lc.includes(k) || lc === k);
+          });
       
       if (drinkCategories.length === 0) {
         return (
@@ -346,7 +403,24 @@ const Menu = () => {
       
       return (
         <div className="space-y-12">
-          {drinkCategories.map(category => (
+          {/* Sub-filter row for drink types */}
+          <div className="mb-4 flex gap-2 flex-wrap">
+            {Object.keys(DRINK_TYPE_FILTERS).map((type) => (
+              <Button
+                key={type}
+                variant={drinkFilter === type ? "default" : "ghost"}
+                className={
+                  drinkFilter === type
+                    ? "bg-gradient-to-r from-[hsl(var(--brand-from-hsl))] via-[hsl(var(--brand-via-hsl))] to-[hsl(var(--brand-to-hsl))] text-gray-900"
+                    : "text-cyan-300"
+                }
+                onClick={() => setDrinkFilter(type as keyof typeof DRINK_TYPE_FILTERS)}
+              >
+                {type === "all" ? "All" : type.charAt(0).toUpperCase() + type.slice(1)}
+              </Button>
+            ))}
+          </div>
+          {drinkCategoriesFiltered.map(category => (
             <div key={category}>
               <h3 className="text-2xl font-bold mb-6 capitalize">{category}</h3>
                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -473,23 +547,13 @@ const Menu = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white">
-      {/* Restaurant Header */}
-      {restaurantSettings?.logo_url && (
-        <div className="flex justify-center py-6 bg-black/50">
-          <img 
-            src={restaurantSettings.logo_url} 
-            alt="Restaurant Logo" 
-            className="h-24 object-contain"
-          />
-        </div>
-      )}
       
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+          <h1 className="text-6xl md:text-7xl font-extrabold tracking-tight mb-2 brand-gradient-text drop-shadow-[var(--brand-shadow)]">
             {restaurantSettings?.name || t('menu.title')}
           </h1>
-          <p className="text-xl text-muted-foreground">{t('menu.subtitle')}</p>
+          {/* Subtitle intentionally removed as requested */}
         </div>
 
         {/* Happy Hours Banner */}
@@ -529,9 +593,7 @@ const Menu = () => {
                         <p className="text-amber-200/80 text-sm mt-1">{offer.description}</p>
                       )}
                     </div>
-                    <Badge variant="secondary" className="bg-amber-500 text-amber-900">
-                      {t('menu.offers.active')}
-                    </Badge>
+                    {/* Active text badge removed as requested */}
                   </div>
                 ))}
               </div>
@@ -548,7 +610,7 @@ const Menu = () => {
               placeholder={t('menu.search.placeholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-14 pr-6 py-6 text-lg bg-gray-800 border-2 border-cyan-500/50 text-white placeholder-cyan-300/70 rounded-2xl focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/30 transition-all shadow-lg shadow-cyan-500/10"
+              className="pl-14 pr-6 py-6 text-lg bg-gray-800 border-2 border-[hsl(var(--brand-from-hsl))]/50 text-white placeholder-cyan-300/70 rounded-2xl focus:border-[hsl(var(--brand-from-hsl))] focus:ring-4 focus:ring-[hsl(var(--brand-from-hsl))]/30 transition-all shadow-lg shadow-cyan-500/10"
             />
             {searchQuery && (
               <button 
@@ -569,6 +631,8 @@ const Menu = () => {
             )}
           </div>
         </div>
+
+        {/* Reviews section moved to end of menu as requested */}
 
         {/* Special Sections */}
         {groupedItems.chefSpecial.length > 0 && (
@@ -627,16 +691,16 @@ const Menu = () => {
 
         {/* Category Tabs - FOOD and DRINKS only */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8 animate-fade-in">
-          <TabsList className="grid w-full grid-cols-2 bg-gray-800/50 border border-cyan-500/30 p-2">
+          <TabsList className="grid w-full grid-cols-2 bg-black/40 border border-[hsl(var(--brand-from-hsl))]/40 p-2 rounded-2xl">
             <TabsTrigger 
               value="drinks" 
-              className="text-2xl font-bold py-4 data-[state=active]:bg-cyan-500 data-[state=active]:text-gray-900 data-[state=inactive]:text-cyan-300"
+              className="text-2xl font-bold py-4 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-[hsl(var(--brand-from-hsl))] data-[state=active]:via-[hsl(var(--brand-via-hsl))] data-[state=active]:to-[hsl(var(--brand-to-hsl))] data-[state=active]:text-gray-900 data-[state=inactive]:text-cyan-300"
             >
               DRINKS
             </TabsTrigger>
             <TabsTrigger 
               value="food" 
-              className="text-2xl font-bold py-4 data-[state=active]:bg-cyan-500 data-[state=active]:text-gray-900 data-[state=inactive]:text-cyan-300"
+              className="text-2xl font-bold py-4 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-[hsl(var(--brand-from-hsl))] data-[state=active]:via-[hsl(var(--brand-via-hsl))] data-[state=active]:to-[hsl(var(--brand-to-hsl))] data-[state=active]:text-gray-900 data-[state=inactive]:text-cyan-300"
             >
               FOOD
             </TabsTrigger>
@@ -646,6 +710,33 @@ const Menu = () => {
         {/* Menu Items */}
         {renderMenuItems()}
       </div>
+
+      {/* Brand Footer with Logo and Website Link */}
+      <footer className="mt-8 border-t border-white/10 bg-black/30">
+        <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <a
+            href="https://www.thelive.bar/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-3"
+            aria-label="Visit LIVE - Eat. Drink. Code. Repeat website"
+          >
+            <img
+              src="/LIVE_Banner_TaglineRepeat_Fixed.jpg"
+              alt="LIVE — Eat. Drink. Code. Repeat"
+              className="h-16 sm:h-20 object-contain drop-shadow-[var(--brand-shadow)]"
+            />
+          </a>
+          <a
+            href="https://www.thelive.bar/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm sm:text-base text-cyan-300 hover:text-pink-300 transition-colors underline underline-offset-4"
+          >
+            thelive.bar
+          </a>
+        </div>
+      </footer>
     </div>
   );
 };
